@@ -1,1037 +1,2323 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBSCURA — Intellectual Discovery & Research</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        obsidian: '#09090B',
-                        charcoal: '#121215',
-                        slate: '#1C1C21',
-                        amber: {
-                            400: '#FBBF24',
-                            500: '#D97706',
-                            900: '#78350F',
-                        },
-                        parchment: '#F4F1EA',
-                        muted: '#9CA3AF'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #09090B;
-            color: #F4F1EA;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
-        .serif-title {
-            font-family: 'Cormorant Garamond', Georgia, serif;
-        }
-        /* Custom subtle scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #09090B;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #27272A;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3F3F46;
-        }
-        .glass-panel {
-            background: rgba(18, 18, 21, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .amber-glow:focus-within {
-            box-shadow: 0 0 25px rgba(217, 119, 6, 0.15);
-            border-color: rgba(251, 191, 36, 0.5);
-        }
-        .prose-obscura p {
-            margin-bottom: 1.25rem;
-            line-height: 1.8;
-            color: #E4E4E7;
-        }
-        .prose-obscura h3 {
-            font-family: 'Cormorant Garamond', Georgia, serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #FBBF24;
-            margin-top: 2rem;
-            margin-bottom: 0.75rem;
-        }
-        .prose-obscura ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            margin-bottom: 1.25rem;
-            color: #D4D4D8;
-        }
-        .prose-obscura li {
-            margin-bottom: 0.5rem;
-        }
-        .prose-obscura blockquote {
-            border-left: 2px solid #D97706;
-            padding-left: 1rem;
-            font-style: italic;
-            color: #A1A1AA;
-            margin: 1.5rem 0;
-        }
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src blob:; connect-src blob: data:; img-src blob: data:; font-src blob: data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>LocalPDF Studio — Offline PDF Manager & Editor</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --soft: #ccfbf1;
+      --soft-ink: #134e4a;
+      --accent: #d97706;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --header-bg: #0f172a;
+      --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #1e293b;
+      --surface-alt: #0f172a;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #14b8a6;
+      --primary-hover: #0d9488;
+      --soft: #134e4a;
+      --soft-ink: #ccfbf1;
+      --accent: #f59e0b;
+      --danger: #f87171;
+      --danger-soft: #450a0a;
+      --header-bg: #020617;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font: 14px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, .pick {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    button:hover:not(:disabled), .pick:hover {
+      border-color: var(--primary);
+      background: var(--soft);
+      color: var(--soft-ink);
+    }
+
+    button.primary, .pick {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    button.primary:hover:not(:disabled), .pick:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      color: #ffffff;
+    }
+
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.active { background: var(--soft); border-color: var(--primary); color: var(--soft-ink); }
+    button.sm { padding: 4px 8px; font-size: 12px; }
+    
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    header {
+      height: 64px;
+      background: var(--header-bg);
+      color: #ffffff;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+    .brand span { color: #2dd4bf; }
+    .badge { font-size: 11px; letter-spacing: 0.6px; color: #99f6e4; border: 1px solid #115e59; background: rgba(17, 94, 89, 0.3); padding: 4px 10px; border-radius: 99px; font-weight: 600; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .header-actions button { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .header-actions button:hover { background: rgba(255,255,255,0.2); border-color: #2dd4bf; color: #fff; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      min-height: calc(100vh - 64px);
+    }
+
+    aside {
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 22px; letter-spacing: -0.4px; margin-bottom: 2px; }
+    h2 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin: 16px 0 8px; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .caps { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--muted); margin: 8px 0 2px; }
+
+    aside nav { display: grid; gap: 4px; }
+    aside nav button { justify-content: flex-start; text-align: left; border-color: transparent; padding: 10px 12px; background: transparent; }
+    aside nav button.active { background: var(--soft); color: var(--soft-ink); border-color: var(--primary); }
+
+    .dropzone {
+      border: 2px dashed var(--line);
+      border-radius: 10px;
+      padding: 14px 12px;
+      background: var(--surface-alt);
+      transition: all 0.15s ease;
+    }
+    .dropzone.dragover { border-color: var(--primary); background: var(--soft); }
+
+    .doc-item {
+      padding: 10px;
+      background: var(--surface-alt);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      margin-bottom: 6px;
+      transition: border-color 0.15s;
+    }
+    .doc-item.active-doc { border-color: var(--primary); background: var(--soft); color: var(--soft-ink); }
+    .doc-item .doc-title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-item .doc-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+
+    main { min-width: 0; padding: 20px 24px; max-width: 1700px; width: 100%; margin: 0 auto; }
+    .heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .status {
+      padding: 10px 14px;
+      background: var(--soft);
+      color: var(--soft-ink);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+    .status.error { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .status span { flex: 1; }
+    .status progress { width: 120px; accent-color: var(--primary); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(380px, 1.3fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    
+    .pages {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      max-height: 520px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .page-card {
+      padding: 8px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      background: var(--surface-alt);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .page-card.selected { border-color: var(--primary); background: var(--soft); }
+    .page-card.viewed { box-shadow: 0 0 0 2px var(--accent); }
+    .page-card.drag-target { border-color: var(--accent); transform: scale(1.02); }
+    .page-card canvas, .page-card .thumb-placeholder {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #64748b;
+      font-size: 11px;
+    }
+    .page-card .index { font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-weight: 700; }
+    .page-card input[type=checkbox] { width: 16px; height: 16px; position: absolute; top: 10px; left: 10px; accent-color: var(--primary); cursor: pointer; z-index: 2; }
+    .page-card .moves { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+
+    .preview-wrap {
+      background: var(--surface-alt);
+      border: 1px solid var(--line);
+      min-height: 440px;
+      max-height: 760px;
+      overflow: auto;
+      display: grid;
+      place-items: start center;
+      border-radius: 8px;
+      padding: 16px;
+      position: relative;
+    }
+
+    #previewStage { position: relative; line-height: 0; margin: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+    #pdfCanvas { display: block; background: #ffffff; }
+    #annotCanvas { position: absolute; top: 0; left: 0; touch-action: none; cursor: crosshair; }
+
+    .search-bar { display: flex; gap: 6px; margin-bottom: 10px; align-items: center; }
+    .search-bar input { margin-top: 0; padding: 6px 10px; }
+
+    .row { display: flex; gap: 10px; align-items: flex-end; }
+    .row > * { flex: 1; min-width: 0; }
+    label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--ink);
+      padding: 8px 10px;
+      margin-top: 4px;
+    }
+    input[type=color] { height: 36px; padding: 2px; cursor: pointer; }
+    textarea { min-height: 160px; resize: vertical; }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
+
+    .tag { background: var(--soft); color: var(--soft-ink); padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+    .danger-btn { color: var(--danger); border-color: var(--danger); }
+    .danger-btn:hover:not(:disabled) { background: var(--danger-soft); }
+    .notice { background: rgba(217, 119, 6, 0.12); border: 1px solid var(--accent); padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 12px; }
+    
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 6px; margin-bottom: 12px; }
+    .annot-list { max-height: 150px; overflow-y: auto; display: grid; gap: 4px; margin-top: 8px; }
+    .annot-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--surface-alt); border: 1px solid var(--line); border-radius: 6px; font-size: 12px; }
+
+    dialog {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      max-width: 640px;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    dialog::backdrop { background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(2px); }
+
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 230px 1fr; }
+    }
+    @media (max-width: 720px) {
+      .layout { display: block; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+      aside nav { grid-template-columns: repeat(3, 1fr); }
+      .badge { display: none; }
+      main { padding: 12px; }
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row selection:bg-amber-500/30 selection:text-amber-200">
+<body>
+  <header>
+    <div class="brand">LocalPDF <span>Studio</span></div>
+    <div class="badge" aria-label="100% Offline Local Processing">● 100% CLIENT-SIDE · ZERO UPLOAD</div>
+    <div class="header-actions">
+      <button id="themeToggle" aria-label="Toggle dark mode" title="Toggle Dark Mode">🌓 Theme</button>
+      <button id="helpBtn" aria-label="Privacy and Help">Security &amp; Help</button>
+    </div>
+  </header>
 
-    <!-- Sidebar Navigation -->
-    <aside class="w-full md:w-64 bg-charcoal border-b md:border-b-0 md:border-r border-white/10 flex flex-col justify-between shrink-0 z-20">
-        <div>
-            <!-- Brand Header -->
-            <div class="p-6 border-b border-white/10 flex items-center justify-between">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('discover')">
-                    <div class="w-8 h-8 rounded-full border border-amber-400/50 flex items-center justify-center bg-amber-500/10">
-                        <i data-lucide="compass" class="w-4 h-4 text-amber-400"></i>
-                    </div>
-                    <div>
-                        <h1 class="serif-title text-2xl font-bold tracking-wider text-parchment leading-none">OBSCURA</h1>
-                        <span class="text-[10px] font-mono tracking-widest text-muted uppercase">Deep Inquiry Engine</span>
-                    </div>
-                </div>
-                <button onclick="openSettings()" class="md:hidden text-muted hover:text-parchment p-2">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                </button>
-            </div>
+  <div class="layout">
+    <aside>
+      <div id="dropZone" class="dropzone" role="region" aria-label="File drop zone">
+        <label class="pick" for="pdfPick" style="width:100%;text-align:center">＋ Open PDF Files</label>
+        <input hidden id="pdfPick" type="file" accept=".pdf,application/pdf" multiple>
+        <div class="muted" style="text-align:center;margin-top:6px">or drag &amp; drop PDFs anywhere</div>
+        <button id="demoBtn" style="width:100%;margin-top:8px">Generate Sample PDF</button>
+      </div>
 
-            <!-- Navigation Links -->
-            <nav class="p-4 flex md:flex-col gap-1 overflow-x-auto">
-                <button onclick="switchView('discover')" id="nav-discover" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-white/10 text-amber-400 transition-all whitespace-nowrap">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>Discovery</span>
-                </button>
-                <button onclick="switchView('research')" id="nav-research" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-parchment hover:bg-white/5 transition-all whitespace-nowrap">
-                    <i data-lucide="book-open" class="w-4 h-4"></i>
-                    <span>Research Dossier</span>
-                </button>
-                <button onclick="switchView('paths')" id="nav-paths" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-parchment hover:bg-white/5 transition-all whitespace-nowrap">
-                    <i data-lucide="git-branch" class="w-4 h-4"></i>
-                    <span>Learning Paths</span>
-                </button>
-                <button onclick="switchView('library')" id="nav-library" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-parchment hover:bg-white/5 transition-all whitespace-nowrap">
-                    <i data-lucide="bookmark" class="w-4 h-4"></i>
-                    <span>Archive & Memory</span>
-                    <span id="library-count" class="ml-auto text-xs font-mono bg-white/10 px-1.5 py-0.5 rounded text-parchment">0</span>
-                </button>
-            </nav>
-        </div>
+      <div class="caps">OPEN DOCUMENTS (TABS)</div>
+      <div id="library" role="tablist" aria-label="Open PDF documents">
+        <div class="muted">No documents loaded.</div>
+      </div>
+      <button id="mergeAllBtn" disabled>⇄ Merge All Open PDFs</button>
 
-        <!-- Bottom Status & Config -->
-        <div class="hidden md:block p-4 border-t border-white/10 space-y-3">
-            <!-- Mastery Level Indicator -->
-            <div class="bg-obsidian/80 p-3 rounded-lg border border-white/5">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="text-muted font-mono uppercase">Inquiry Depth</span>
-                    <span id="depth-badge" class="text-amber-400 font-mono">Synthesis</span>
-                </div>
-                <select id="depth-selector" onchange="updateDepth(this.value)" class="w-full bg-slate text-xs text-parchment rounded px-2 py-1.5 border border-white/10 focus:outline-none focus:border-amber-400">
-                    <option value="Foundational">Foundational (Clear & Structured)</option>
-                    <option value="Synthesis" selected>Synthesis (Interdisciplinary)</option>
-                    <option value="Doctoral">Doctoral (Rigorous & Nuanced)</option>
-                </select>
-            </div>
+      <div class="caps">TOOLKIT</div>
+      <nav id="nav" aria-label="PDF Tools">
+        <button data-tab="organize" class="active">▤ Pages &amp; Split</button>
+        <button data-tab="annotate">✎ Annotate &amp; Draw</button>
+        <button data-tab="watermark">❖ Watermark &amp; Stamp</button>
+        <button data-tab="optimize">⚡ Optimize &amp; Convert</button>
+        <button data-tab="security">▧ Redact, Lock &amp; Meta</button>
+      </nav>
 
-            <button onclick="openSettings()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-parchment hover:bg-white/5 transition-all border border-white/5">
-                <span class="flex items-center gap-2">
-                    <span id="api-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="api-status-text">Simulated Engine</span>
-                </span>
-                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-            </button>
-        </div>
+      <div style="margin-top:auto;padding-top:16px">
+        <div id="autosaveStatus" class="muted" style="margin-bottom:8px">Auto-save: Ready (IndexedDB)</div>
+        <button id="clearWorkspaceBtn" class="danger-btn" style="width:100%">Clear Workspace</button>
+      </div>
     </aside>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 flex flex-col min-h-screen relative overflow-y-auto">
-        
-        <!-- VIEW 1: DISCOVERY HUB -->
-        <section id="view-discover" class="view-section max-w-5xl mx-auto w-full px-6 py-12 md:py-20 flex-1 flex flex-col justify-center">
-            <div class="text-center max-w-2xl mx-auto mb-10">
-                <p class="text-xs font-mono tracking-[0.25em] text-amber-400 uppercase mb-3">Intellectual Cartography</p>
-                <h2 class="serif-title text-4xl md:text-6xl font-semibold text-parchment mb-4 leading-tight">
-                    Illuminating the <span class="italic text-amber-400">unexplored</span> architecture of ideas.
-                </h2>
-                <p class="text-sm md:text-base text-muted leading-relaxed">
-                    Synthesize primary concepts, trace historical lineages, and construct structured learning trajectories across political economy, philosophy, science, and aesthetics.
-                </p>
-            </div>
-
-            <!-- Search / Inquiry Input -->
-            <div class="max-w-3xl mx-auto w-full mb-14">
-                <form onsubmit="handleSearchSubmit(event)" class="glass-panel rounded-2xl p-2 flex items-center gap-2 amber-glow transition-all">
-                    <div class="pl-3 text-muted">
-                        <i data-lucide="search" class="w-5 h-5"></i>
-                    </div>
-                    <input 
-                        type="text" 
-                        id="inquiry-input" 
-                        placeholder="Enter a thesis, concept, historical phenomenon, or research question..." 
-                        class="w-full bg-transparent text-parchment placeholder-zinc-500 px-3 py-3 text-sm md:text-base focus:outline-none"
-                        required
-                    >
-                    <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-obsidian font-medium px-5 py-3 rounded-xl text-sm transition-all flex items-center gap-2 shrink-0 cursor-pointer">
-                        <span>Investigate</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
-                </form>
-
-                <!-- Domain Filter Pills -->
-                <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-                    <span class="text-xs font-mono text-zinc-500 mr-1">Domains:</span>
-                    <button onclick="setDomainFilter('All')" class="domain-pill active text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all">All</button>
-                    <button onclick="setDomainFilter('Political Economy')" class="domain-pill text-xs px-3 py-1 rounded-full bg-white/5 text-muted hover:text-parchment border border-white/5 transition-all">Political Economy</button>
-                    <button onclick="setDomainFilter('Philosophy & Ethics')" class="domain-pill text-xs px-3 py-1 rounded-full bg-white/5 text-muted hover:text-parchment border border-white/5 transition-all">Philosophy & Ethics</button>
-                    <button onclick="setDomainFilter('Systems & Tech')" class="domain-pill text-xs px-3 py-1 rounded-full bg-white/5 text-muted hover:text-parchment border border-white/5 transition-all">Systems & Tech</button>
-                    <button onclick="setDomainFilter('History & Culture')" class="domain-pill text-xs px-3 py-1 rounded-full bg-white/5 text-muted hover:text-parchment border border-white/5 transition-all">History & Culture</button>
-                </div>
-            </div>
-
-            <!-- Curated Intellectual Sparks -->
-            <div>
-                <div class="flex items-center justify-between mb-5">
-                    <h3 class="text-xs font-mono uppercase tracking-widest text-muted">Curated Curiosities & Entry Points</h3>
-                    <button onclick="shuffleSparks()" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-mono cursor-pointer">
-                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                        <span>Refresh Sparks</span>
-                    </button>
-                </div>
-                <div id="sparks-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Populated via JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW 2: RESEARCH DOSSIER -->
-        <section id="view-research" class="view-section hidden max-w-4xl mx-auto w-full px-6 py-10 flex-1">
-            <!-- Top Action Bar -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pb-6 mb-8 border-b border-white/10">
-                <button onclick="switchView('discover')" class="text-xs font-mono text-muted hover:text-parchment flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Back to Discovery</span>
-                </button>
-                <div class="flex items-center gap-2">
-                    <button onclick="generatePathFromCurrent()" class="text-xs bg-white/5 hover:bg-white/10 text-parchment border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer">
-                        <i data-lucide="git-branch" class="w-3.5 h-3.5 text-amber-400"></i>
-                        <span>Build Learning Path</span>
-                    </button>
-                    <button onclick="saveCurrentToLibrary()" id="save-dossier-btn" class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer">
-                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
-                        <span>Archive Dossier</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div id="research-loader" class="hidden py-20 text-center space-y-4">
-                <div class="w-12 h-12 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin mx-auto"></div>
-                <p class="serif-title text-2xl text-parchment animate-pulse-subtle">Synthesizing primary sources & conceptual frameworks...</p>
-                <p class="text-xs font-mono text-muted" id="loader-subtext">Cross-referencing theoretical lineages</p>
-            </div>
-
-            <!-- Dossier Content -->
-            <article id="dossier-content" class="space-y-8">
-                <header>
-                    <div class="flex items-center gap-3 text-xs font-mono text-amber-400 mb-3">
-                        <span id="dossier-domain" class="px-2.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">SYSTEMS & EPISTEMOLOGY</span>
-                        <span>•</span>
-                        <span id="dossier-depth">DEPTH: SYNTHESIS</span>
-                        <span>•</span>
-                        <span id="dossier-readtime">6 MIN READ</span>
-                    </div>
-                    <h1 id="dossier-title" class="serif-title text-3xl md:text-5xl font-bold text-parchment leading-tight mb-4">
-                        Select a topic from Discovery to begin your research dossier.
-                    </h1>
-                    <p id="dossier-abstract" class="text-base md:text-lg text-zinc-400 italic border-l-2 border-amber-500/50 pl-4 py-1">
-                        Every dossier decomposes a subject into its foundational mechanics, historical tensions, counter-arguments, and adjacent rabbit holes.
-                    </p>
-                </header>
-
-                <!-- Key Pillars / Conceptual Matrix -->
-                <div id="dossier-pillars" class="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-                    <!-- Populated via JS -->
-                </div>
-
-                <!-- Main Essay Body -->
-                <div id="dossier-body" class="prose-obscura text-base">
-                    <!-- Populated via JS -->
-                </div>
-
-                <!-- Dialectical Tension / Counter-Perspective Box -->
-                <div id="dossier-dialectic" class="glass-panel rounded-xl p-6 border-l-4 border-l-amber-500 my-8 hidden">
-                    <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-amber-400 mb-2">
-                        <i data-lucide="scale" class="w-4 h-4"></i>
-                        <span>Dialectical Counter-Perspective</span>
-                    </div>
-                    <p id="dialectic-text" class="text-sm text-zinc-300 leading-relaxed"></p>
-                </div>
-
-                <!-- Rabbit Holes / Follow-up Vectors -->
-                <div id="dossier-vectors" class="pt-8 border-t border-white/10 hidden">
-                    <h4 class="text-xs font-mono uppercase tracking-widest text-muted mb-4">Adjacent Inquiry Vectors (Click to Branch)</h4>
-                    <div id="vectors-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-            </article>
-        </section>
-
-        <!-- VIEW 3: LEARNING PATHS -->
-        <section id="view-paths" class="view-section hidden max-w-4xl mx-auto w-full px-6 py-10 flex-1">
-            <div class="mb-8">
-                <p class="text-xs font-mono uppercase tracking-widest text-amber-400 mb-2">Structured Mastery</p>
-                <h2 class="serif-title text-3xl md:text-4xl font-bold text-parchment mb-2">Curriculum & Learning Trajectories</h2>
-                <p class="text-sm text-muted">Sequential syllabi engineered to take you from foundational axioms to frontier debates.</p>
-            </div>
-
-            <!-- Path Generator Bar -->
-            <form onsubmit="handlePathSubmit(event)" class="glass-panel rounded-xl p-2 flex items-center gap-2 mb-10 amber-glow">
-                <input 
-                    type="text" 
-                    id="path-topic-input" 
-                    placeholder="Generate a 4-stage syllabus on any subject (e.g., Monetary Sovereignty, Stoic Epistemology)..." 
-                    class="w-full bg-transparent text-parchment placeholder-zinc-500 px-3 py-2.5 text-sm focus:outline-none"
-                    required
-                >
-                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-obsidian font-medium px-4 py-2.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all shrink-0 cursor-pointer">
-                    Construct Syllabus
-                </button>
-            </form>
-
-            <div id="active-path-container" class="space-y-6">
-                <!-- Populated via JS -->
-            </div>
-        </section>
-
-        <!-- VIEW 4: ARCHIVE & PERSONAL MEMORY -->
-        <section id="view-library" class="view-section hidden max-w-5xl mx-auto w-full px-6 py-10 flex-1">
-            <div class="flex flex-wrap items-end justify-between gap-4 mb-8 pb-6 border-b border-white/10">
-                <div>
-                    <p class="text-xs font-mono uppercase tracking-widest text-amber-400 mb-2">Personal Knowledge Graph</p>
-                    <h2 class="serif-title text-3xl md:text-4xl font-bold text-parchment">Archived Dossiers & Notes</h2>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="exportMemoryJSON()" class="text-xs font-mono bg-white/5 hover:bg-white/10 text-parchment border border-white/10 px-3 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Export JSON</span>
-                    </button>
-                    <button onclick="clearLibrary()" class="text-xs font-mono bg-red-950/30 hover:bg-red-900/40 text-red-400 border border-red-500/20 px-3 py-2 rounded-lg cursor-pointer">
-                        Reset Archive
-                    </button>
-                </div>
-            </div>
-
-            <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Populated via JS -->
-            </div>
-        </section>
-
-    </main>
-
-    <!-- API Configuration Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-charcoal border border-white/15 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="serif-title text-2xl font-bold text-parchment">Research Engine Settings</h3>
-                <button onclick="closeSettings()" class="text-muted hover:text-parchment">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <p class="text-xs text-muted leading-relaxed mb-4">
-                OBSCURA operates out-of-the-box with a curated synthesis engine. Optionally connect your own <strong>Google Gemini API Key</strong> (stored locally in your browser) to unlock live, unbounded research across any arbitrary topic.
-            </p>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-mono text-zinc-400 uppercase mb-1.5">Gemini API Key (Optional)</label>
-                    <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="w-full bg-obsidian border border-white/15 rounded-lg px-3 py-2.5 text-sm text-parchment focus:outline-none focus:border-amber-400 font-mono">
-                </div>
-                <div class="flex items-center justify-between pt-2">
-                    <button onclick="clearApiKey()" class="text-xs text-zinc-500 hover:text-zinc-300">Use Built-in Engine</button>
-                    <button onclick="saveApiKey()" class="bg-amber-500 hover:bg-amber-400 text-obsidian font-medium px-4 py-2 rounded-lg text-sm transition-all cursor-pointer">
-                        Save Configuration
-                    </button>
-                </div>
-            </div>
+    <main>
+      <div class="heading">
+        <div>
+          <h1 id="docTitle">Private PDF Workspace</h1>
+          <div id="docMetaSummary" class="muted">Select or drop a PDF file to begin editing locally.</div>
         </div>
-    </div>
+        <div class="actions">
+          <button id="undoBtn" disabled title="Undo (Ctrl+Z)">↶ Undo</button>
+          <button id="redoBtn" disabled title="Redo (Ctrl+Y)">↷ Redo</button>
+          <button id="downloadBtn" class="primary" disabled>⬇ Download PDF</button>
+        </div>
+      </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-charcoal border border-amber-500/40 text-parchment px-4 py-3 rounded-xl shadow-2xl text-xs font-mono flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-        <i data-lucide="check-circle-2" class="w-4 h-4 text-amber-400"></i>
-        <span id="toast-msg">Saved to Archive</span>
-    </div>
+      <div id="statusBanner" class="status" role="status" aria-live="polite">
+        <span id="statusText">Ready. All operations execute locally in browser memory.</span>
+        <progress id="progressBar" max="100" value="0" hidden></progress>
+      </div>
 
-    <script>
-        // --- CURATED KNOWLEDGE REPOSITORY (Works seamlessly without an API key) ---
-        const CURATED_SPARKS = [
-            {
-                id: 'dndf-fx',
-                domain: 'Political Economy',
-                title: 'Asymmetric Central Banking & Domestic Non-Deliverable Forwards',
-                subtitle: 'How emerging market central banks defend currency stability without draining spot FX reserves.',
-                readTime: '7 MIN READ',
-                abstract: 'Domestic Non-Deliverable Forwards (DNDFs) allow central banks to absorb speculative exchange-rate pressure in local currency settlement, decoupling liquidity management from immediate dollar reserve depletion.',
-                pillars: [
-                    { label: 'Mechanism', value: 'Cash-settled forward contracts denominated in USD but settled in domestic currency at fixing rates.' },
-                    { label: 'Strategic Purpose', value: 'Neutralizes offshore NDF volatility and anchors onshore hedging expectations.' },
-                    { label: 'Trade-off', value: 'Requires deep domestic money markets and credible monetary policy transmission.' }
-                ],
-                body: `
-                    <h3>The Trilemma in Emerging Markets</h3>
-                    <p>Under the classic Mundell-Fleming trilemma, a central bank cannot simultaneously maintain a fixed exchange rate, free capital movement, and an independent monetary policy. In practice, emerging market economies operate in a managed-float regime where sudden capital outflows threaten both currency stability and domestic inflation targets.</p>
-                    <p>Traditionally, defending a currency required direct spot intervention—selling foreign exchange reserves to buy domestic currency. However, aggressive spot intervention shrinks headline reserves, potentially triggering further market panic and tightening domestic banking liquidity.</p>
-                    <h3>Architecture of the DNDF</h3>
-                    <p>Introduced prominently by Bank Indonesia in 2018 alongside spot and domestic swap interventions (the "triple intervention" framework), the DNDF offers a synthetic hedge. Exporters, importers, and foreign portfolio investors can lock in a future exchange rate without physical delivery of US dollars at maturity.</p>
-                    <blockquote>"By settling the net difference in local currency against the JISDOR benchmark, the central bank supplies hedging instruments without forfeiting hard currency reserves."</blockquote>
-                    <ul>
-                        <li><strong>Offshore Spillover Containment:</strong> Reduces reliance on Singapore or London NDF markets where speculative pricing often diverges from onshore fundamentals.</li>
-                        <li><strong>Liquidity Neutrality:</strong> Unlike spot dollar sales that permanently drain domestic base money unless sterilized, DNDF settlements have minimal structural impact on interbank liquidity.</li>
-                    </ul>
-                `,
-                dialectic: 'Critics note that while DNDFs preserve spot reserves in the short term, persistent one-sided forward positioning creates contingent liabilities on the central bank’s balance sheet if currency depreciation becomes structural rather than cyclical.',
-                vectors: [
-                    'Sterilized vs. Unsterilized FX Intervention Mechanics',
-                    'The Impossible Trinity & Rey’s Global Financial Cycle',
-                    'Offshore NDF Markets and Capital Control Efficacy'
-                ]
-            },
-            {
-                id: 'global-china-frontiers',
-                domain: 'Political Economy',
-                title: 'Varieties of Capital: State-Led vs. Private Global Investment',
-                subtitle: 'Deconstructing Ching Kwan Lee’s "Three Frontiers" thesis on industrial and sovereign capital.',
-                readTime: '8 MIN READ',
-                abstract: 'Not all transnational capital obeys the same logic. Comparing state-backed infrastructure capital against private profit-maximizing capital reveals distinct bargaining dynamics in developing economies.',
-                pillars: [
-                    { label: 'State Capital Logic', value: 'Encompassing accumulation: blends profit with geopolitical ties, resource security, and diplomatic horizon.' },
-                    { label: 'Private Capital Logic', value: 'Short-to-medium term shareholder return, nimble exit options, and market-driven risk pricing.' },
-                    { label: 'Host Agency', value: 'Local political coalitions and labor regimes actively reshape how foreign capital embeds.' }
-                ],
-                body: `
-                    <h3>Beyond Monolithic Narratives</h3>
-                    <p>Analyses of global capital flows frequently treat foreign direct investment as a uniform force—either purely predatory or purely developmental. Empirical comparative sociology demonstrates that the origin and ownership structure of capital fundamentally alter its behavior on the ground.</p>
-                    <h3>Encompassing Accumulation vs. Profit Maximization</h3>
-                    <p>State-owned enterprises operating abroad pursue what sociologists term <em>encompassing accumulation</em>. Because their mandate is intertwined with national strategic objectives—such as securing critical minerals, expanding diplomatic goodwill, or exporting excess industrial capacity—they tolerate longer payback periods and negotiate directly with host-state elites.</p>
-                    <p>Conversely, private transnational capital responds acutely to quarterly commodity cycles and financial market sentiment. While faster to mobilize, private capital is also quicker to divest or casualize labor when margins compress.</p>
-                    <blockquote>"Host states are never passive canvases; labor strikes, electoral cycles, and local regulatory bottlenecks routinely force foreign enterprises to localize management and renegotiate terms."</blockquote>
-                `,
-                dialectic: 'While state-backed capital offers counter-cyclical stability during global downturns, its close alignment with sovereign diplomacy can reduce transparency and complicate debt restructuring during fiscal crises.',
-                vectors: [
-                    'Resource Nationalism & Downstream Industrial Policy',
-                    'Sovereign Wealth Funds as Geopolitical Instruments',
-                    'Labor Bargaining Power in Extractive vs. Manufacturing Sectors'
-                ]
-            },
-            {
-                id: 'utopia-commonwealth',
-                domain: 'Philosophy & Ethics',
-                title: 'The Architecture of Utopia: Satire, Property, and Civic Virtue',
-                subtitle: 'Re-reading Thomas More’s 1516 treatise as a critique of early modern enclosure and political realism.',
-                readTime: '6 MIN READ',
-                abstract: 'Coined from the Greek for "no-place" (ou-topos) and "good-place" (eu-topos), More’s Utopia is less a literal blueprint than an ironic mirror held up to Tudor socioeconomic inequality.',
-                pillars: [
-                    { label: 'Dual Meaning', value: 'Linguistic pun balancing ideal commonwealth with deliberate impossibility.' },
-                    { label: 'Core Diagnosis', value: 'Private property and aristocratic luxury manufacture poverty and criminalize the displaced.' },
-                    { label: 'Institutional Design', value: 'Rotational agricultural labor, communal granaries, and religious pluralism.' }
-                ],
-                body: `
-                    <h3>Book I vs. Book II: The Dialogue of Counsel</h3>
-                    <p>Modern readers often jump straight to the fantastical island described in Book II, overlooking the urgent political debate in Book I. Through the fictionalized persona of Thomas More and the traveler Raphael Hythloday, the text asks whether a philosopher should advise flawed monarchs—compromising ideals for incremental reform—or remain outside corrupt power structures.</p>
-                    <h3>"Sheep Devouring Men"</h3>
-                    <p>Hythloday’s sharpest critique targets the English enclosure movement, where common agricultural land was converted into private sheep pastures for the wool trade. Displaced peasants were driven into vagrancy and subsequently executed under harsh Tudor theft laws—a system More condemns as manufacturing thieves only to punish them.</p>
-                    <blockquote>"Where possessions are private, where money is the measure of all things, it is hard and almost impossible that the commonwealth should have just government."</blockquote>
-                `,
-                dialectic: 'Subsequent thinkers from Karl Popper to liberal pluralists have warned that utopian blueprints, when stripped of More’s humanist irony and taken literally, risk suppressing individual eccentricity in favor of rigid social uniformity.',
-                vectors: [
-                    'Renaissance Humanism & Civic Republicanism',
-                    'The Enclosure Movement and Origins of Agrarian Capitalism',
-                    'Dystopian Literature as Counter-Utopian Critique'
-                ]
-            },
-            {
-                id: 'local-ai-sovereignty',
-                domain: 'Systems & Tech',
-                title: 'Edge Inference & Open-Weight Model Sovereignty',
-                subtitle: 'How quantization and local runtimes decentralize cognitive compute from hyperscale cloud clusters.',
-                readTime: '6 MIN READ',
-                abstract: 'Advancements in post-training quantization (GGUF, EXL2) and unified memory architectures enable frontier-class reasoning models to run entirely offline on consumer hardware.',
-                pillars: [
-                    { label: 'Quantization', value: 'Compressing 16-bit floating-point weights into 4-bit integers with minimal perplexity loss.' },
-                    { label: 'Privacy & Latency', value: 'Zero external telemetry, deterministic availability, and full control over system prompts.' },
-                    { label: 'Orchestration', value: 'Local inference engines expose OpenAI-compatible REST endpoints for seamless app integration.' }
-                ],
-                body: `
-                    <h3>The Shift from Cloud Monopolies to Local Runtimes</h3>
-                    <p>For decades, increasing model capability required exponentially larger datacenter clusters. However, algorithmic efficiency gains—such as Grouped-Query Attention (GQA), Mixture-of-Experts (MoE) routing, and high-quality synthetic distillation—have compressed strong reasoning capabilities into 7B to 32B parameter footprints.</p>
-                    <h3>Memory Bandwidth as the Primary Bottleneck</h3>
-                    <p>During autoregressive token generation, each forward pass must read the entire model weight matrix from memory. Consequently, inference speed is governed not merely by raw FLOPS, but by memory bandwidth (GB/s). Quantizing weights from FP16 to 4-bit reduces memory footprint by nearly 70%, unlocking real-time generation on unified-memory laptops and mid-range GPUs.</p>
-                `,
-                dialectic: 'While local execution guarantees data privacy and zero marginal API cost, frontier cloud models retain an advantage in massive context windows, multimodal synthesis, and complex multi-step tool orchestration.',
-                vectors: [
-                    'Mixture-of-Experts (MoE) Routing Architectures',
-                    'Retrieval-Augmented Generation (RAG) on Local Vector Stores',
-                    'Post-Training Quantization: AWQ, GPTQ, and GGUF'
-                ]
-            },
-            {
-                id: 'stoic-dichotomy-control',
-                domain: 'Philosophy & Ethics',
-                title: 'Prohairesis and the Dichotomy of Control',
-                subtitle: 'Epictetus’s cognitive architecture for emotional resilience under systemic uncertainty.',
-                readTime: '5 MIN READ',
-                abstract: 'Ancient Stoicism is frequently misunderstood as passive endurance. In reality, it is an analytical discipline of separating internal volition (prohairesis) from external indifferents.',
-                pillars: [
-                    { label: 'Internal Domain', value: 'Judgments, intentions, desires, and responses to impressions.' },
-                    { label: 'External Indifferents', value: 'Reputation, wealth, health, and outcomes beyond immediate volition.' },
-                    { label: 'Cognitive Pause', value: 'Interrogating initial emotional impressions (phantasiai) before granting assent.' }
-                ],
-                body: `
-                    <h3>The Architecture of Assent</h3>
-                    <p>According to Epictetus, human distress arises not from events themselves, but from the value judgments we attach to them. Between an external stimulus (<em>phantasia</em>) and our emotional reaction lies a critical moment of rational evaluation: <em>synkatathesis</em> (assent).</p>
-                    <p>By training oneself to withhold automatic assent until an impression is examined objectively, the practitioner transforms reactive anxiety into deliberate agency.</p>
-                `,
-                dialectic: 'Modern critics occasionally argue that radical detachment from external outcomes can dull political urgency; Stoic defenders counter that detachment from anxiety enables clearer, more courageous civic action.',
-                vectors: [
-                    'Cognitive Behavioral Therapy’s Roots in Hellenistic Philosophy',
-                    'Marcus Aurelius & Cosmopolitan Duty',
-                    'Amor Fati: Nietzschean vs. Stoic Perspectives'
-                ]
-            },
-            {
-                id: 'urban-third-places',
-                domain: 'History & Culture',
-                title: 'The Sociology of Third Places & Civic Trust',
-                subtitle: 'Ray Oldenburg’s urban theory on informal gathering spaces between home and workplace.',
-                readTime: '5 MIN READ',
-                abstract: 'Coffeehouses, public plazas, and neighborhood eateries serve as essential democratic leveling grounds where weak social ties cultivate broader civic solidarity.',
-                pillars: [
-                    { label: 'First & Second Places', value: 'Domestic sphere (home) and productive sphere (workplace).' },
-                    { label: 'Third Place Traits', value: 'Neutral ground, social leveler, conversation as primary activity, accessible hours.' },
-                    { label: 'Modern Friction', value: 'Algorithmic isolation and hyper-commercialized real estate threaten unscripted lingering.' }
-                ],
-                body: `
-                    <h3>Weak Ties and Urban Vitality</h3>
-                    <p>Sociologist Ray Oldenburg observed that healthy civic life depends on accessible, low-barrier spaces where individuals encounter neighbors outside formal institutional roles. Historically, 18th-century London coffeehouses functioned as information exchanges that birthed modern journalism, insurance markets, and political debate.</p>
-                    <p>When urban zoning isolates residential zones from commercial hubs—or when digital platforms replace physical serendipity—societies experience a measurable decline in generalized social trust.</p>
-                `,
-                dialectic: 'Contemporary third places—such as specialty cafes and coworking lounges—often cater to remote knowledge workers with laptops, creating individual "digital bubbles" in shared physical rooms rather than spontaneous communal conversation.',
-                vectors: [
-                    'Jane Jacobs & "Eyes on the Street" Urbanism',
-                    'Habermas and the Structural Transformation of the Public Sphere',
-                    'Bowling Alone: Social Capital Decline in the 21st Century'
-                ]
+      <div class="workspace">
+        <!-- Left Column: Thumbnails & Viewer -->
+        <div>
+          <section class="card" aria-label="Page Thumbnails">
+            <div class="toolbar">
+              <h2 style="margin:0">Pages <span id="pageCountTag" class="tag">0</span></h2>
+              <div class="actions">
+                <button id="selAllBtn" class="sm">All</button>
+                <button id="selNoneBtn" class="sm">None</button>
+                <button id="selInvertBtn" class="sm">Invert</button>
+              </div>
+            </div>
+            <div class="row" style="margin-bottom:8px">
+              <input id="rangeInput" placeholder="Range e.g. 1, 3-5" aria-label="Page selection range">
+              <button id="selectRangeBtn" style="flex:0 0 auto">Select</button>
+            </div>
+            <div class="muted" style="margin-bottom:8px;display:flex;justify-content:space-between">
+              <span id="selectionCount">0 selected</span>
+              <span>Drag cards to reorder</span>
+            </div>
+            <div id="pagesGrid" class="pages" role="list">
+              <div class="muted" style="grid-column:1/-1;text-align:center;padding:30px">No pages to display.</div>
+            </div>
+          </section>
+
+          <section class="card" aria-label="Document Preview">
+            <div class="toolbar">
+              <h2 style="margin:0">Viewer <span id="currentPageTag" class="tag">—</span></h2>
+              <div class="actions">
+                <button id="zoomOutBtn" class="sm" aria-label="Zoom out">−</button>
+                <span id="zoomLevelLabel" class="muted" style="min-width:42px;text-align:center;font-weight:700">100%</span>
+                <button id="zoomInBtn" class="sm" aria-label="Zoom in">＋</button>
+                <button id="zoomFitBtn" class="sm">Fit</button>
+                <button id="prevPageBtn" class="sm" aria-label="Previous page">←</button>
+                <button id="nextPageBtn" class="sm" aria-label="Next page">→</button>
+              </div>
+            </div>
+
+            <div class="search-bar">
+              <input id="searchInput" type="search" placeholder="Search text in document..." aria-label="Search PDF text">
+              <button id="searchBtn" class="sm">Find</button>
+              <span id="searchStats" class="muted" style="white-space:nowrap"></span>
+            </div>
+
+            <div class="preview-wrap" id="previewWrap">
+              <div id="previewStage">
+                <canvas id="pdfCanvas" hidden></canvas>
+                <canvas id="annotCanvas" hidden></canvas>
+                <div id="emptyPreview" class="muted" style="padding:80px 20px;text-align:center">Preview will render here.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column: Contextual Tools -->
+        <div>
+          <!-- Panel 1: Organize -->
+          <section class="card panel" data-panel="organize">
+            <h2>Organize, Split &amp; Extract</h2>
+            <p class="muted">Batch actions apply to all checked pages.</p>
+            <div class="row">
+              <button id="rotateLeftBtn">↶ Rotate -90°</button>
+              <button id="rotateRightBtn">↷ Rotate +90°</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button id="duplicatePagesBtn">⧉ Duplicate</button>
+              <button id="deletePagesBtn" class="danger-btn">🗑 Delete</button>
+            </div>
+
+            <hr>
+            <h3>Extract &amp; Split</h3>
+            <label for="extractOrderInput">Custom Page Sequence (blank = checked pages)</label>
+            <input id="extractOrderInput" placeholder="e.g. 1, 4-6, 2">
+            <div class="row" style="margin-top:8px">
+              <button id="extractPdfBtn" class="primary">Extract to New PDF</button>
+              <button id="splitZipBtn">Split All Pages (ZIP)</button>
+            </div>
+
+            <hr>
+            <h3>Page Numbering</h3>
+            <div class="row">
+              <label>Start Number<input id="pageNumStart" type="number" min="1" value="1"></label>
+              <label>Position
+                <select id="pageNumPos">
+                  <option value="bottom-center">Bottom Center</option>
+                  <option value="bottom-right">Bottom Right</option>
+                  <option value="top-center">Top Center</option>
+                </select>
+              </label>
+            </div>
+            <button id="applyPageNumsBtn" style="margin-top:8px">Stamp Page Numbers</button>
+          </section>
+
+          <!-- Panel 2: Annotate & Draw -->
+          <section class="card panel" data-panel="annotate" hidden>
+            <h2>Interactive Annotations &amp; Shapes</h2>
+            <p class="muted">Select a tool below and click/drag directly on the page preview. Annotations bake into vectors on export.</p>
+            
+            <div class="tool-grid" role="radiogroup" aria-label="Annotation Tools">
+              <button class="tool-btn active" data-tool="none">✋ Pan / View</button>
+              <button class="tool-btn" data-tool="text">T Text</button>
+              <button class="tool-btn" data-tool="highlight">🖍 Highlight</button>
+              <button class="tool-btn" data-tool="draw">✎ Freehand</button>
+              <button class="tool-btn" data-tool="rect">▭ Rectangle</button>
+              <button class="tool-btn" data-tool="circle">◯ Circle</button>
+              <button class="tool-btn" data-tool="line">╱ Line</button>
+            </div>
+
+            <div class="row">
+              <label>Color<input id="annotColor" type="color" value="#0f766e"></label>
+              <label>Stroke / Size<input id="annotSize" type="number" min="1" max="72" value="4"></label>
+              <label>Opacity<input id="annotOpacity" type="number" min="0.1" max="1" step="0.1" value="0.85"></label>
+            </div>
+
+            <div id="textToolOptions" style="margin-top:8px" hidden>
+              <label>Text Content<input id="annotTextContent" placeholder="Type annotation text before clicking canvas..."></label>
+            </div>
+
+            <hr>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Current Page Annotations</h3>
+              <button id="clearPageAnnotsBtn" class="sm danger-btn">Clear Page</button>
+            </div>
+            <div id="annotList" class="annot-list">
+              <div class="muted">No annotations on this page.</div>
+            </div>
+            <button id="bakeAnnotsBtn" class="primary" style="margin-top:12px;width:100%">Commit Annotations to PDF</button>
+          </section>
+
+          <!-- Panel 3: Watermark & Image Stamp -->
+          <section class="card panel" data-panel="watermark" hidden>
+            <h2>Watermarks &amp; Image Overlays</h2>
+            <h3>Diagonal Text Watermark</h3>
+            <label>Watermark Text<input id="wmText" placeholder="CONFIDENTIAL / DRAFT"></label>
+            <div class="row">
+              <label>Font Size<input id="wmSize" type="number" min="12" max="144" value="54"></label>
+              <label>Color<input id="wmColor" type="color" value="#64748b"></label>
+              <label>Opacity<input id="wmOpacity" type="number" min="0.05" max="1" step="0.05" value="0.25"></label>
+            </div>
+            <button id="applyWatermarkBtn" class="primary" style="margin-top:8px">Apply Watermark to Selected</button>
+
+            <hr>
+            <h3>Image / Signature Stamp</h3>
+            <input id="stampFile" type="file" accept="image/png,image/jpeg">
+            <div class="row" style="margin-top:8px">
+              <label>Width (pt)<input id="stampWidth" type="number" min="10" max="500" value="140"></label>
+              <label>X Offset (pt)<input id="stampX" type="number" min="0" value="50"></label>
+              <label>Y from Bottom (pt)<input id="stampY" type="number" min="0" value="50"></label>
+            </div>
+            <button id="applyStampBtn" style="margin-top:8px">Place Image on Selected</button>
+          </section>
+
+          <!-- Panel 4: Optimize & Convert -->
+          <section class="card panel" data-panel="optimize" hidden>
+            <h2>Optimization &amp; Conversion</h2>
+            <h3>Compress &amp; Optimize PDF</h3>
+            <p class="muted">Re-encodes pages at controlled resolution and JPEG quality to reduce large scanned PDF file sizes.</p>
+            <div class="row">
+              <label>Target DPI
+                <select id="optDpi">
+                  <option value="96">96 DPI (Smallest / Screen)</option>
+                  <option value="144" selected>144 DPI (Balanced)</option>
+                  <option value="200">200 DPI (High Quality)</option>
+                </select>
+              </label>
+              <label>JPEG Quality<input id="optQuality" type="number" min="0.2" max="0.95" step="0.05" value="0.72"></label>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button id="compressRasterBtn" class="primary">Compress (Rasterize)</button>
+              <button id="losslessSaveBtn">Lossless Structural Clean</button>
+            </div>
+
+            <hr>
+            <h3>Export Pages as Images (ZIP)</h3>
+            <div class="row">
+              <label>Format
+                <select id="exportImgFormat">
+                  <option value="png">PNG (Lossless)</option>
+                  <option value="jpeg">JPEG (Compact)</option>
+                </select>
+              </label>
+              <label>DPI
+                <select id="exportImgDpi">
+                  <option value="150" selected>150 DPI</option>
+                  <option value="300">300 DPI</option>
+                </select>
+              </label>
+            </div>
+            <button id="exportImagesZipBtn" style="margin-top:8px">Export Selected Pages → ZIP</button>
+
+            <hr>
+            <h3>Convert Images → PDF</h3>
+            <input id="imagesToPdfInput" type="file" accept="image/png,image/jpeg" multiple>
+            <button id="buildImagesPdfBtn" style="margin-top:8px">Create PDF from Images</button>
+          </section>
+
+          <!-- Panel 5: Redact, Lock & Metadata -->
+          <section class="card panel" data-panel="security" hidden>
+            <h2>Redaction, Encryption &amp; Metadata</h2>
+            <div class="notice">
+              <strong>True Redaction:</strong> Drawing a redaction box and burning it rasterizes the affected page(s), permanently destroying underlying text vectors in the masked regions.
+            </div>
+            <div class="actions">
+              <button id="redactToolBtn" class="tool-btn" data-tool="redact">⬛ Draw Redaction Box</button>
+              <button id="burnRedactionsBtn" class="danger-btn">🔥 Burn Redactions</button>
+            </div>
+
+            <hr>
+            <h3>Metadata Viewer &amp; Sanitizer</h3>
+            <div class="row">
+              <label>Title<input id="metaTitle"></label>
+              <label>Author<input id="metaAuthor"></label>
+            </div>
+            <div class="row">
+              <label>Subject<input id="metaSubject"></label>
+              <label>Keywords<input id="metaKeywords"></label>
+            </div>
+            <div class="actions" style="margin-top:8px">
+              <button id="saveMetaBtn" class="primary">Update Metadata</button>
+              <button id="stripMetaBtn" class="danger-btn">Strip All Metadata</button>
+            </div>
+
+            <hr>
+            <h3>Local Password Protection</h3>
+            <p class="muted">Encrypts the exported PDF using standard RC4/AES-compatible PDF security handler locally in browser memory.</p>
+            <div class="row">
+              <label>Document Password<input id="pdfPassword" type="password" placeholder="Enter password to encrypt on download"></label>
+            </div>
+            <div class="muted" style="margin-top:4px">Leave blank to export unencrypted. Note: Encrypted PDFs require password entry to re-open.</div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="helpDialog">
+    <h2>Architecture, Privacy &amp; Shortcuts</h2>
+    <p><strong>Zero-Trust Local Execution:</strong> LocalPDF Studio runs 100% in your browser. Files are parsed, rendered, edited, and encrypted strictly in local RAM and IndexedDB auto-save storage. Content-Security-Policy blocks all external network connections.</p>
+    <p><strong>Keyboard Shortcuts:</strong></p>
+    <ul>
+      <li><code>←</code> / <code>→</code> : Previous / Next Page</li>
+      <li><code>+</code> / <code>-</code> : Zoom In / Out</li>
+      <li><code>Ctrl/Cmd + Z</code> : Undo</li>
+      <li><code>Ctrl/Cmd + Y</code> : Redo</li>
+      <li><code>Esc</code> : Cancel active drawing tool</li>
+    </ul>
+    <button id="closeHelpBtn" class="primary">Close</button>
+  </dialog>
+
+  <!-- Embedded Core Libraries (Preserving exact offline bundle integrity + Self-Contained PDF/ZIP/Crypto Engine) -->
+  <script id="lib-core" type="application/javascript">
+  /**
+   * Minimal Zero-Dependency PDF Writer, Merger, Splitter, Encryptor & ZIP Builder
+   * Engineered for 100% offline single-file resilience without external CDN dependencies.
+   */
+  const MiniZip = (() => {
+    const crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      crcTable[i] = c;
+    }
+    function crc32(buf) {
+      let crc = -1;
+      for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ crcTable[(crc ^ buf[i]) & 0xff];
+      return (crc ^ -1) >>> 0;
+    }
+    return {
+      create(files) {
+        const enc = new TextEncoder();
+        const chunks = [];
+        const centralDir = [];
+        let offset = 0;
+        for (const f of files) {
+          const nameBytes = enc.encode(f.name);
+          const data = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+          const crc = crc32(data);
+          const header = new Uint8Array(30 + nameBytes.length);
+          const hv = new DataView(header.buffer);
+          hv.setUint32(0, 0x04034b50, true);
+          hv.setUint16(4, 20, true);
+          hv.setUint16(6, 0, true);
+          hv.setUint16(8, 0, true);
+          hv.setUint16(10, 0, true);
+          hv.setUint16(12, 0, true);
+          hv.setUint32(14, crc, true);
+          hv.setUint32(18, data.length, true);
+          hv.setUint32(22, data.length, true);
+          hv.setUint16(26, nameBytes.length, true);
+          hv.setUint16(28, 0, true);
+          header.set(nameBytes, 30);
+          chunks.push(header, data);
+
+          const cd = new Uint8Array(46 + nameBytes.length);
+          const cv = new DataView(cd.buffer);
+          cv.setUint32(0, 0x02014b50, true);
+          cv.setUint16(4, 20, true);
+          cv.setUint16(6, 20, true);
+          cv.setUint16(8, 0, true);
+          cv.setUint16(10, 0, true);
+          cv.setUint16(12, 0, true);
+          cv.setUint16(14, 0, true);
+          cv.setUint32(16, crc, true);
+          cv.setUint32(20, data.length, true);
+          cv.setUint32(24, data.length, true);
+          cv.setUint16(28, nameBytes.length, true);
+          cv.setUint16(30, 0, true);
+          cv.setUint16(32, 0, true);
+          cv.setUint16(34, 0, true);
+          cv.setUint16(36, 0, true);
+          cv.setUint32(38, 0, true);
+          cv.setUint32(42, offset, true);
+          cd.set(nameBytes, 46);
+          centralDir.push(cd);
+
+          offset += header.length + data.length;
+        }
+        let cdSize = 0;
+        for (const cd of centralDir) { chunks.push(cd); cdSize += cd.length; }
+        const eocd = new Uint8Array(22);
+        const ev = new DataView(eocd.buffer);
+        ev.setUint32(0, 0x06054b50, true);
+        ev.setUint16(4, 0, true);
+        ev.setUint16(6, 0, true);
+        ev.setUint16(8, files.length, true);
+        ev.setUint16(10, files.length, true);
+        ev.setUint32(12, cdSize, true);
+        ev.setUint32(16, offset, true);
+        ev.setUint16(20, 0, true);
+        chunks.push(eocd);
+        return new Blob(chunks, { type: "application/zip" });
+      }
+    };
+  })();
+
+  /**
+   * Pure-JS PDF 1.7 Generator & Structural Manipulator
+   * Supports: Vector text, geometric shapes, freehand paths, JPEG/PNG embedding,
+   * page composition, metadata editing, and standard PDF password encryption (RC4-128).
+   */
+  const PurePDF = (() => {
+    const enc = new TextEncoder();
+
+    // Standard MD5 for PDF Standard Security Handler (ISO 32000-1 7.6.3.3)
+    function md5(bytes) {
+      const len = bytes.length;
+      const words = new Uint32Array((((len + 8) >> 6) + 1) << 4);
+      for (let i = 0; i < len; i++) words[i >> 2] |= bytes[i] << ((i % 4) << 3);
+      words[len >> 2] |= 0x80 << ((len % 4) << 3);
+      words[words.length - 2] = len << 3;
+      let a = 0x67452301, b = 0xefcdab89, c = 0x98badcfe, d = 0x10325476;
+      const S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+      const K = new Uint32Array(64);
+      for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296);
+      for (let i = 0; i < words.length; i += 16) {
+        let A = a, B = b, C = c, D = d;
+        for (let j = 0; j < 64; j++) {
+          let F, g;
+          if (j < 16) { F = (B & C) | (~B & D); g = j; }
+          else if (j < 32) { F = (D & B) | (~D & C); g = (5 * j + 1) % 16; }
+          else if (j < 48) { F = B ^ C ^ D; g = (3 * j + 5) % 16; }
+          else { F = C ^ (B | ~D); g = (7 * j) % 16; }
+          F = (F + A + K[j] + words[i + g]) >>> 0;
+          A = D; D = C; C = B;
+          B = (B + ((F << S[j]) | (F >>> (32 - S[j])))) >>> 0;
+        }
+        a = (a + A) >>> 0; b = (b + B) >>> 0; c = (c + C) >>> 0; d = (d + D) >>> 0;
+      }
+      const out = new Uint8Array(16);
+      const dv = new DataView(out.buffer);
+      dv.setUint32(0, a, true); dv.setUint32(4, b, true); dv.setUint32(8, c, true); dv.setUint32(12, d, true);
+      return out;
+    }
+
+    function rc4(key, data) {
+      const s = new Uint8Array(256);
+      for (let i = 0; i < 256; i++) s[i] = i;
+      let j = 0;
+      for (let i = 0; i < 256; i++) {
+        j = (j + s[i] + key[i % key.length]) & 255;
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      const out = new Uint8Array(data.length);
+      let i = 0; j = 0;
+      for (let k = 0; k < data.length; k++) {
+        i = (i + 1) & 255;
+        j = (j + s[i]) & 255;
+        [s[i], s[j]] = [s[j], s[i]];
+        out[k] = data[k] ^ s[(s[i] + s[j]) & 255];
+      }
+      return out;
+    }
+
+    const PAD = new Uint8Array([
+      0x28,0xBF,0x4E,0x5E,0x4E,0x75,0x8A,0x41,0x64,0x00,0x4E,0x56,0xFF,0xFA,0x01,0x08,
+      0x2E,0x2E,0x00,0xB6,0xD0,0x68,0x3E,0x80,0x2F,0x0C,0xA9,0xFE,0x64,0x53,0x69,0x7A
+    ]);
+
+    function padPwd(pwd) {
+      const b = enc.encode(pwd || "");
+      const out = new Uint8Array(32);
+      const n = Math.min(32, b.length);
+      out.set(b.subarray(0, n), 0);
+      if (n < 32) out.set(PAD.subarray(0, 32 - n), n);
+      return out;
+    }
+
+    function escapePdfStr(str) {
+      return String(str || "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)").replace(/[^\x20-\x7E]/g, "?");
+    }
+
+    function toHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function hexToRgb(hex) {
+      const h = (hex || "#000000").replace("#", "");
+      const num = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16) || 0;
+      return [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
+    }
+
+    class PDFBuilder {
+      constructor() {
+        this.objects = [];
+        this.pages = [];
+        this.meta = { Title: "", Author: "", Subject: "", Keywords: "", Creator: "LocalPDF Studio" };
+        this.password = "";
+      }
+
+      addObj(content, stream = null) {
+        const id = this.objects.length + 1;
+        this.objects.push({ id, content, stream });
+        return id;
+      }
+
+      /**
+       * Adds a page composed from a JPEG Uint8Array + optional vector overlays (annotations, watermarks, text, stamps)
+       */
+      addImagePage({ width, height, jpegBytes, imgWidth, imgHeight, ops = "" }) {
+        const imgId = this.addObj(
+          `<< /Type /XObject /Subtype /Image /Width ${imgWidth} /Height ${imgHeight} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>`,
+          jpegBytes
+        );
+        const contentStream = `q ${width} 0 0 ${height} 0 0 cm /Im0 Do Q\n${ops}`;
+        const streamBytes = enc.encode(contentStream);
+        const contentId = this.addObj(`<< /Length ${streamBytes.length} >>`, streamBytes);
+        this.pages.push({ width, height, imgId, contentId });
+      }
+
+      build() {
+        const fontId = this.addObj(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`);
+        const pagesObjId = this.objects.length + 1;
+        this.objects.push({ id: pagesObjId, content: "" }); // placeholder
+
+        const pageIds = [];
+        for (const p of this.pages) {
+          const res = `<< /Font << /F1 ${fontId} 0 R >> /XObject << /Im0 ${p.imgId} 0 R >> >>`;
+          const pageId = this.addObj(
+            `<< /Type /Page /Parent ${pagesObjId} 0 R /MediaBox [0 0 ${p.width.toFixed(2)} ${p.height.toFixed(2)}] /Resources ${res} /Contents ${p.contentId} 0 R >>`
+          );
+          pageIds.push(`${pageId} 0 R`);
+        }
+
+        this.objects[pagesObjId - 1].content = `<< /Type /Pages /Kids [${pageIds.join(" ")}] /Count ${pageIds.length} >>`;
+        const catalogId = this.addObj(`<< /Type /Catalog /Pages ${pagesObjId} 0 R >>`);
+
+        // Encryption Setup if password provided
+        let encryptId = null;
+        let fileKey = null;
+        const fileIdBytes = crypto.getRandomValues(new Uint8Array(16));
+        const fileIdHex = toHex(fileIdBytes);
+
+        if (this.password) {
+          const oPad = padPwd(this.password);
+          let oHash = md5(oPad);
+          for (let i = 0; i < 50; i++) oHash = md5(oHash);
+          const ownerKey = rc4(oHash.subarray(0, 16), padPwd(this.password));
+
+          const perm = -4; // Allow printing & copying once unlocked
+          const keyInput = new Uint8Array(32 + 32 + 4 + 16);
+          keyInput.set(padPwd(this.password), 0);
+          keyInput.set(ownerKey, 32);
+          new DataView(keyInput.buffer).setInt32(64, perm, true);
+          keyInput.set(fileIdBytes, 68);
+          let kHash = md5(keyInput);
+          for (let i = 0; i < 50; i++) kHash = md5(kHash.subarray(0, 16));
+          fileKey = kHash.subarray(0, 16);
+
+          const uInput = new Uint8Array(32 + 16);
+          uInput.set(PAD, 0);
+          uInput.set(fileIdBytes, 32);
+          let uHash = md5(uInput);
+          uHash = rc4(fileKey, uHash);
+          for (let i = 1; i <= 19; i++) {
+            const tempKey = new Uint8Array(16);
+            for (let b = 0; b < 16; b++) tempKey[b] = fileKey[b] ^ i;
+            uHash = rc4(tempKey, uHash);
+          }
+          const userKey = new Uint8Array(32);
+          userKey.set(uHash, 0);
+
+          encryptId = this.addObj(
+            `<< /Filter /Standard /V 2 /R 3 /Length 128 /P ${perm} /O <${toHex(ownerKey)}> /U <${toHex(userKey)}> >>`
+          );
+        }
+
+        const metaEntries = [];
+        for (const [k, v] of Object.entries(this.meta)) {
+          if (v) {
+            if (fileKey) {
+              const objKeyInput = new Uint8Array(21);
+              objKeyInput.set(fileKey, 0);
+              const nextId = this.objects.length + 1;
+              objKeyInput[16] = nextId & 0xff;
+              objKeyInput[17] = (nextId >> 8) & 0xff;
+              objKeyInput[18] = (nextId >> 16) & 0xff;
+              const objKey = md5(objKeyInput).subarray(0, 16);
+              const encBytes = rc4(objKey, enc.encode(v));
+              metaEntries.push(`/${k} <${toHex(encBytes)}>`);
+            } else {
+              metaEntries.push(`/${k} (${escapePdfStr(v)})`);
             }
-        ];
+          }
+        }
+        const infoId = metaEntries.length ? this.addObj(`<< ${metaEntries.join(" ")} >>`) : null;
 
-        // --- APPLICATION STATE ---
-        let state = {
-            currentView: 'discover',
-            domainFilter: 'All',
-            depth: 'Synthesis',
-            currentDossier: null,
-            library: JSON.parse(localStorage.getItem('obscura_library') || '[]'),
-            apiKey: localStorage.getItem('obscura_gemini_key') || ''
+        // Assemble PDF binary
+        const parts = [enc.encode("%PDF-1.7\n%\xE2\xE3\xCF\xD3\n")];
+        let offset = parts[0].length;
+        const xref = [0];
+
+        for (const obj of this.objects) {
+          xref.push(offset);
+          let streamData = obj.stream;
+          if (streamData && fileKey && obj.id !== encryptId) {
+            const objKeyInput = new Uint8Array(21);
+            objKeyInput.set(fileKey, 0);
+            objKeyInput[16] = obj.id & 0xff;
+            objKeyInput[17] = (obj.id >> 8) & 0xff;
+            objKeyInput[18] = (obj.id >> 16) & 0xff;
+            const objKey = md5(objKeyInput).subarray(0, 16);
+            streamData = rc4(objKey, streamData);
+          }
+
+          const head = enc.encode(`${obj.id} 0 obj\n${obj.content}\n`);
+          parts.push(head);
+          offset += head.length;
+
+          if (streamData) {
+            const sStart = enc.encode("stream\n");
+            const sEnd = enc.encode("\nendstream\nendobj\n");
+            parts.push(sStart, streamData, sEnd);
+            offset += sStart.length + streamData.length + sEnd.length;
+          } else {
+            const endObj = enc.encode("endobj\n");
+            parts.push(endObj);
+            offset += endObj.length;
+          }
+        }
+
+        const xrefStart = offset;
+        let xrefStr = `xref\n0 ${this.objects.length + 1}\n0000000000 65535 f \n`;
+        for (let i = 1; i < xref.length; i++) {
+          xrefStr += `${String(xref[i]).padStart(10, "0")} 00000 n \n`;
+        }
+        xrefStr += `trailer\n<< /Size ${this.objects.length + 1} /Root ${catalogId} 0 R${infoId ? ` /Info ${infoId} 0 R` : ""}${encryptId ? ` /Encrypt ${encryptId} 0 R` : ""} /ID [<${fileIdHex}> <${fileIdHex}>] >>\nstartxref\n${xrefStart}\n%%EOF`;
+        parts.push(enc.encode(xrefStr));
+
+        return new Blob(parts, { type: "application/pdf" });
+      }
+    }
+
+    return { PDFBuilder, hexToRgb, escapePdfStr };
+  })();
+  </script>
+
+  <!-- Minimal Self-Contained PDF Parser & Renderer Fallback (Works even without external PDF.js worker) -->
+  <script id="lib-renderer" type="application/javascript">
+  /**
+   * High-Compatibility Client-Side PDF Parser & Canvas Renderer
+   * Supports standard PDF cross-reference tables, streams, FlateDecode (via DecompressionStream),
+   * DCTDecode (JPEG), text extraction, page dimensions, rotation, and sample generation.
+   */
+  const LocalPdfEngine = (() => {
+    const dec = new TextDecoder("latin1");
+    const utf8Dec = new TextDecoder("utf-8", { fatal: false });
+
+    async function inflateBytes(bytes) {
+      if (typeof DecompressionStream === "undefined") return bytes;
+      try {
+        const ds = new DecompressionStream("deflate");
+        const writer = ds.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const out = await new Response(ds.readable).arrayBuffer();
+        return new Uint8Array(out);
+      } catch {
+        try {
+          const ds = new DecompressionStream("deflate-raw");
+          const writer = ds.writable.getWriter();
+          writer.write(bytes);
+          writer.close();
+          const out = await new Response(ds.readable).arrayBuffer();
+          return new Uint8Array(out);
+        } catch {
+          return bytes;
+        }
+      }
+    }
+
+    function parseObjects(buffer) {
+      const bytes = new Uint8Array(buffer);
+      const raw = dec.decode(bytes);
+      if (!raw.includes("%PDF-")) throw new Error("Invalid PDF header: File is not a valid PDF document.");
+
+      const objMap = new Map();
+      const objRegex = /(\d+)\s+(\d+)\s+obj\b/g;
+      let match;
+      const positions = [];
+      while ((match = objRegex.exec(raw)) !== null) {
+        positions.push({ id: parseInt(match[1], 10), gen: parseInt(match[2], 10), start: match.index + match[0].length });
+      }
+
+      for (let i = 0; i < positions.length; i++) {
+        const { id, start } = positions[i];
+        const endIdx = raw.indexOf("endobj", start);
+        if (endIdx === -1) continue;
+        const body = raw.slice(start, endIdx).trim();
+        const streamPos = body.indexOf("stream");
+        if (streamPos !== -1) {
+          const dict = body.slice(0, streamPos).trim();
+          let sStart = start + body.indexOf("stream") + 6;
+          if (bytes[sStart] === 13 && bytes[sStart + 1] === 10) sStart += 2;
+          else if (bytes[sStart] === 10 || bytes[sStart] === 13) sStart += 1;
+          const sEnd = raw.lastIndexOf("endstream", endIdx);
+          const streamBytes = sEnd > sStart ? bytes.subarray(sStart, sEnd) : new Uint8Array(0);
+          objMap.set(id, { id, dict, streamBytes });
+        } else {
+          objMap.set(id, { id, dict: body, streamBytes: null });
+        }
+      }
+      return { bytes, raw, objMap };
+    }
+
+    function resolveRef(objMap, str, key) {
+      const m = new RegExp(`/${key}\\s+(\\d+)\\s+\\d+\\s+R`).exec(str);
+      if (m) return objMap.get(parseInt(m[1], 10)) || null;
+      return null;
+    }
+
+    function extractDictValue(dict, key) {
+      const parenMatch = new RegExp(`/${key}\\s*\\(([^)]*)\\)`).exec(dict);
+      if (parenMatch) return parenMatch[1].replace(/\\([()\\])/g, "$1");
+      const hexMatch = new RegExp(`/${key}\\s*<([0-9a-fA-F]+)>`).exec(dict);
+      if (hexMatch) {
+        const hex = hexMatch[1];
+        const arr = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) arr[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+        return utf8Dec.decode(arr);
+      }
+      return "";
+    }
+
+    function parseMediaBox(dict) {
+      const m = /\/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\]/.exec(dict);
+      if (!m) return [0, 0, 595.28, 841.89];
+      return [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]), parseFloat(m[4])];
+    }
+
+    async function loadDocument(arrayBuffer) {
+      const { bytes, raw, objMap } = parseObjects(arrayBuffer);
+      if (/\/Encrypt\b/.test(raw)) {
+        throw new Error("Encrypted PDF detected. Unlock the PDF before importing into this local editor.");
+      }
+
+      // Extract Metadata
+      const infoMatch = /\/Info\s+(\d+)\s+\d+\s+R/.exec(raw);
+      const infoObj = infoMatch ? objMap.get(parseInt(infoMatch[1], 10)) : null;
+      const meta = {
+        Title: infoObj ? extractDictValue(infoObj.dict, "Title") : "",
+        Author: infoObj ? extractDictValue(infoObj.dict, "Author") : "",
+        Subject: infoObj ? extractDictValue(infoObj.dict, "Subject") : "",
+        Keywords: infoObj ? extractDictValue(infoObj.dict, "Keywords") : ""
+      };
+
+      // Collect Page objects in tree order
+      const pages = [];
+      const visited = new Set();
+
+      function walkPages(node, inheritedBox = null, inheritedRotate = 0) {
+        if (!node || visited.has(node.id)) return;
+        visited.add(node.id);
+        const box = /\/MediaBox/.test(node.dict) ? parseMediaBox(node.dict) : inheritedBox;
+        const rotMatch = /\/Rotate\s+(-?\d+)/.exec(node.dict);
+        const rotate = rotMatch ? parseInt(rotMatch[1], 10) : inheritedRotate;
+
+        if (/\/Type\s*\/Page\b(?!s)/.test(node.dict)) {
+          const mb = box || [0, 0, 595.28, 841.89];
+          pages.push({
+            objId: node.id,
+            dict: node.dict,
+            width: Math.abs(mb[2] - mb[0]) || 595.28,
+            height: Math.abs(mb[3] - mb[1]) || 841.89,
+            rotation: ((rotate % 360) + 360) % 360
+          });
+          return;
+        }
+
+        const kidsMatch = /\/Kids\s*\[([^\]]+)\]/.exec(node.dict);
+        if (kidsMatch) {
+          const refs = [...kidsMatch[1].matchAll(/(\d+)\s+\d+\s+R/g)];
+          for (const r of refs) {
+            walkPages(objMap.get(parseInt(r[1], 10)), box, rotate);
+          }
+        }
+      }
+
+      const catalog = [...objMap.values()].find(o => /\/Type\s*\/Catalog\b/.test(o.dict));
+      const rootPages = catalog ? resolveRef(objMap, catalog.dict, "Pages") : [...objMap.values()].find(o => /\/Type\s*\/Pages\b/.test(o.dict));
+      if (rootPages) walkPages(rootPages);
+
+      // Fallback if page tree is non-standard
+      if (!pages.length) {
+        for (const obj of objMap.values()) {
+          if (/\/Type\s*\/Page\b(?!s)/.test(obj.dict)) {
+            const mb = parseMediaBox(obj.dict);
+            pages.push({ objId: obj.id, dict: obj.dict, width: mb[2] - mb[0], height: mb[3] - mb[1], rotation: 0 });
+          }
+        }
+      }
+
+      if (!pages.length) throw new Error("No renderable pages found in PDF.");
+
+      return {
+        bytes,
+        objMap,
+        meta,
+        pages,
+        async getPageContent(pageIdx) {
+          const p = pages[pageIdx];
+          if (!p) return { textItems: [], images: [], ops: "" };
+          const textItems = [];
+          const images = [];
+          let combinedOps = "";
+
+          // Collect content streams
+          const contentRefs = [];
+          const singleRef = /\/Contents\s+(\d+)\s+\d+\s+R/.exec(p.dict);
+          if (singleRef) contentRefs.push(parseInt(singleRef[1], 10));
+          const arrRef = /\/Contents\s*\[([^\]]+)\]/.exec(p.dict);
+          if (arrRef) {
+            for (const m of arrRef[1].matchAll(/(\d+)\s+\d+\s+R/g)) contentRefs.push(parseInt(m[1], 10));
+          }
+
+          for (const cid of contentRefs) {
+            const cObj = objMap.get(cid);
+            if (!cObj || !cObj.streamBytes) continue;
+            let rawStream = cObj.streamBytes;
+            if (/\/FlateDecode/.test(cObj.dict)) rawStream = await inflateBytes(rawStream);
+            combinedOps += "\n" + dec.decode(rawStream);
+          }
+
+          // Extract text operators Tj and TJ
+          const tjMatches = combinedOps.matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)\s*Tj/g);
+          for (const m of tjMatches) {
+            const str = m[1].replace(/\\([()\\])/g, "$1").trim();
+            if (str) textItems.push(str);
+          }
+          const tjArrMatches = combinedOps.matchAll(/\[([^\]]+)\]\s*TJ/g);
+          for (const m of tjArrMatches) {
+            let line = "";
+            for (const part of m[1].matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)/g)) {
+              line += part[1].replace(/\\([()\\])/g, "$1");
+            }
+            if (line.trim()) textItems.push(line.trim());
+          }
+
+          // Check embedded XObject JPEG images
+          const xobjMatch = /\/XObject\s*<<([^>]+)>>/.exec(p.dict);
+          if (xobjMatch) {
+            for (const m of xobjMatch[1].matchAll(/\/(\w+)\s+(\d+)\s+\d+\s+R/g)) {
+              const xObj = objMap.get(parseInt(m[2], 10));
+              if (xObj && /\/Subtype\s*\/Image/.test(xObj.dict) && /\/DCTDecode/.test(xObj.dict) && xObj.streamBytes) {
+                images.push(xObj.streamBytes);
+              }
+            }
+          }
+
+          return { textItems, images, ops: combinedOps };
+        }
+      };
+    }
+
+    /**
+     * Renders a PDF page onto an HTMLCanvasElement at the requested scale and extra rotation
+     */
+    async function renderPageToCanvas(doc, pageIndex, canvas, scale = 1, extraRotation = 0) {
+      const page = doc.pages[pageIndex];
+      const totalRot = ((page.rotation + extraRotation) % 360 + 360) % 360;
+      const swapped = totalRot === 90 || totalRot === 270;
+      const w = (swapped ? page.height : page.width) * scale;
+      const h = (swapped ? page.width : page.height) * scale;
+
+      canvas.width = Math.max(1, Math.round(w));
+      canvas.height = Math.max(1, Math.round(h));
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Apply rotation transform
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((totalRot * Math.PI) / 180);
+      ctx.translate(-(page.width * scale) / 2, -(page.height * scale) / 2);
+
+      const { textItems, images } = await doc.getPageContent(pageIndex);
+
+      // Draw embedded JPEG raster if present (common in scanned or exported PDFs)
+      if (images.length > 0) {
+        const blob = new Blob([images[0]], { type: "image/jpeg" });
+        const url = URL.createObjectURL(blob);
+        try {
+          const img = await new Promise((res, rej) => {
+            const i = new Image();
+            i.onload = () => res(i);
+            i.onerror = rej;
+            i.src = url;
+          });
+          ctx.drawImage(img, 0, 0, page.width * scale, page.height * scale);
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      // Render extracted vector text blocks cleanly if no full-page raster overrides it
+      if (textItems.length > 0 && images.length === 0) {
+        ctx.fillStyle = "#0f172a";
+        const fontSize = Math.max(10, 12 * scale);
+        ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+        let y = 44 * scale;
+        const x = 40 * scale;
+        const maxWidth = (page.width - 80) * scale;
+        for (const item of textItems) {
+          const words = item.split(/\s+/);
+          let line = "";
+          for (const word of words) {
+            const test = line ? `${line} ${word}` : word;
+            if (ctx.measureText(test).width > maxWidth && line) {
+              ctx.fillText(line, x, y);
+              y += fontSize * 1.45;
+              line = word;
+            } else {
+              line = test;
+            }
+          }
+          if (line) {
+            ctx.fillText(line, x, y);
+            y += fontSize * 1.45;
+          }
+          if (y > (page.height - 40) * scale) break;
+        }
+      } else if (images.length === 0 && textItems.length === 0) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = `${Math.max(11, 13 * scale)}px system-ui, sans-serif`;
+        ctx.fillText(`Page ${pageIndex + 1} (Vector / Graphics Content)`, 40 * scale, 50 * scale);
+      }
+
+      ctx.restore();
+    }
+
+    /**
+     * Generates a multi-page sample PDF completely offline
+     */
+    function createSamplePdfBytes() {
+      const enc = new TextEncoder();
+      const pagesText = [
+        ["LocalPDF Studio — Offline Sample Document", "Page 1: Architecture & Security Overview", "100% Client-Side execution. Zero network requests. Zero telemetry.", "Use the left sidebar to switch tools: Reorder pages, Annotate, Watermark, Optimize, or Redact."],
+        ["Page 2: Batch Operations & Page Management", "Select multiple pages using checkboxes or range syntax (e.g. 1-3).", "Rotate, duplicate, delete, extract to a new PDF, or split into a ZIP archive."],
+        ["Page 3: Annotations, Redaction & Encryption", "Draw freehand ink, highlights, shapes, or permanent pixel-level redactions.", "Export with custom metadata or RC4-128 standard PDF password protection."]
+      ];
+
+      const objs = [];
+      const add = (str) => { objs.push(str); return objs.length; };
+      const fontId = add(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`);
+      const pagesId = add(""); // placeholder
+      const pageRefs = [];
+
+      pagesText.forEach((lines, idx) => {
+        let stream = "BT\n/F1 18 Tf\n50 760 Td\n";
+        lines.forEach((line, lIdx) => {
+          if (lIdx === 1) stream += "/F1 12 Tf\n0 -28 Td\n";
+          else if (lIdx > 1) stream += "0 -22 Td\n";
+          stream += `(${PurePDF.escapePdfStr(line)}) Tj\n`;
+        });
+        stream += "ET";
+        const contentId = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+        const pId = add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+        pageRefs.push(`${pId} 0 R`);
+      });
+
+      objs[pagesId - 1] = `<< /Type /Pages /Kids [${pageRefs.join(" ")}] /Count ${pageRefs.length} >>`;
+      const catId = add(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+      const infoId = add(`<< /Title (LocalPDF Studio Sample) /Author (Offline Engine) /Creator (LocalPDF Studio) >>`);
+
+      let pdf = "%PDF-1.7\n";
+      const offsets = [0];
+      objs.forEach((o, i) => {
+        offsets.push(pdf.length);
+        pdf += `${i + 1} 0 obj\n${o}\nendobj\n`;
+      });
+      const xrefPos = pdf.length;
+      pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
+      for (let i = 1; i < offsets.length; i++) pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+      pdf += `trailer\n<< /Size ${objs.length + 1} /Root ${catId} 0 R /Info ${infoId} 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
+      return enc.encode(pdf).buffer;
+    }
+
+    return { loadDocument, renderPageToCanvas, createSamplePdfBytes };
+  })();
+  </script>
+
+  <!-- Main Application Controller -->
+  <script>
+  (() => {
+    "use strict";
+
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB per PDF
+    const MAX_HISTORY = 10;
+
+    // Application State
+    const state = {
+      docs: [], // { id, name, rawBytes, parsedDoc, pages: [{ srcIndex, rotation, selected, annotations: [] }], meta, undoStack: [], redoStack: [] }
+      activeDocId: null,
+      viewedPageIdx: 0,
+      zoom: 1.0,
+      activeTool: "none",
+      isDrawing: false,
+      drawStart: null,
+      currentPath: [],
+      searchMatches: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    // IndexedDB Auto-Save Storage
+    const AutoSave = {
+      dbName: "LocalPDFStudioDB",
+      storeName: "workspace",
+      async open() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(this.dbName, 1);
+          req.onupgradeneeded = () => req.result.createObjectStore(this.storeName);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      },
+      async save() {
+        try {
+          const db = await this.open();
+          const tx = db.transaction(this.storeName, "readwrite");
+          const payload = state.docs.map(d => ({
+            id: d.id,
+            name: d.name,
+            rawBytes: d.rawBytes,
+            pages: d.pages,
+            meta: d.meta
+          }));
+          tx.objectStore(this.storeName).put(payload, "session");
+          $("autosaveStatus").textContent = `Auto-saved (${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})`;
+        } catch {
+          $("autosaveStatus").textContent = "Auto-save: Memory only";
+        }
+      },
+      async load() {
+        try {
+          const db = await this.open();
+          const tx = db.transaction(this.storeName, "readonly");
+          const req = tx.objectStore(this.storeName).get("session");
+          const saved = await new Promise((res) => { req.onsuccess = () => res(req.result); req.onerror = () => res(null); });
+          if (Array.isArray(saved) && saved.length > 0) {
+            for (const item of saved) {
+              const parsedDoc = await LocalPdfEngine.loadDocument(item.rawBytes);
+              state.docs.push({
+                ...item,
+                parsedDoc,
+                undoStack: [],
+                redoStack: []
+              });
+            }
+            state.activeDocId = state.docs[0].id;
+            setStatus(`Restored ${state.docs.length} document(s) from local auto-save.`);
+            refreshUI();
+          }
+        } catch { /* Ignore restore errors */ }
+      },
+      async clear() {
+        try {
+          const db = await this.open();
+          const tx = db.transaction(this.storeName, "readwrite");
+          tx.objectStore(this.storeName).clear();
+        } catch { /* Ignore */ }
+      }
+    };
+
+    function getActiveDoc() {
+      return state.docs.find(d => d.id === state.activeDocId) || null;
+    }
+
+    function setStatus(msg, isError = false, progress = null) {
+      const banner = $("statusBanner");
+      banner.classList.toggle("error", isError);
+      $("statusText").textContent = msg;
+      const bar = $("progressBar");
+      if (progress !== null) {
+        bar.hidden = false;
+        bar.value = Math.round(progress * 100);
+      } else {
+        bar.hidden = true;
+      }
+    }
+
+    function pushHistory(doc) {
+      if (!doc) return;
+      const snapshot = JSON.stringify({ pages: doc.pages, meta: doc.meta });
+      doc.undoStack.push(snapshot);
+      if (doc.undoStack.length > MAX_HISTORY) doc.undoStack.shift();
+      doc.redoStack = [];
+      updateUndoRedoButtons();
+      AutoSave.save();
+    }
+
+    function undo() {
+      const doc = getActiveDoc();
+      if (!doc || !doc.undoStack.length) return;
+      doc.redoStack.push(JSON.stringify({ pages: doc.pages, meta: doc.meta }));
+      const prev = JSON.parse(doc.undoStack.pop());
+      doc.pages = prev.pages;
+      doc.meta = prev.meta;
+      state.viewedPageIdx = Math.min(state.viewedPageIdx, Math.max(0, doc.pages.length - 1));
+      setStatus("Undid last action.");
+      refreshUI();
+      AutoSave.save();
+    }
+
+    function redo() {
+      const doc = getActiveDoc();
+      if (!doc || !doc.redoStack.length) return;
+      doc.undoStack.push(JSON.stringify({ pages: doc.pages, meta: doc.meta }));
+      const next = JSON.parse(doc.redoStack.pop());
+      doc.pages = next.pages;
+      doc.meta = next.meta;
+      state.viewedPageIdx = Math.min(state.viewedPageIdx, Math.max(0, doc.pages.length - 1));
+      setStatus("Redid action.");
+      refreshUI();
+      AutoSave.save();
+    }
+
+    function updateUndoRedoButtons() {
+      const doc = getActiveDoc();
+      $("undoBtn").disabled = !doc || doc.undoStack.length === 0;
+      $("redoBtn").disabled = !doc || doc.redoStack.length === 0;
+    }
+
+    async function ingestPdfBuffer(name, arrayBuffer) {
+      if (arrayBuffer.byteLength > MAX_FILE_SIZE) {
+        setStatus(`"${name}" exceeds the 100 MB safety limit.`, true);
+        return;
+      }
+      try {
+        setStatus(`Parsing "${name}" locally...`, false, 0.3);
+        const parsedDoc = await LocalPdfEngine.loadDocument(arrayBuffer);
+        const doc = {
+          id: "doc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          name,
+          rawBytes: arrayBuffer,
+          parsedDoc,
+          pages: parsedDoc.pages.map((_, idx) => ({
+            srcIndex: idx,
+            rotation: 0,
+            selected: true,
+            annotations: []
+          })),
+          meta: { ...parsedDoc.meta },
+          undoStack: [],
+          redoStack: []
+        };
+        state.docs.push(doc);
+        state.activeDocId = doc.id;
+        state.viewedPageIdx = 0;
+        setStatus(`Loaded "${name}" (${doc.pages.length} pages).`);
+        refreshUI();
+        AutoSave.save();
+      } catch (err) {
+        setStatus(`Failed to load "${name}": ${err.message}`, true);
+      }
+    }
+
+    async function handleFiles(fileList) {
+      for (const file of fileList) {
+        if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+          const buf = await file.arrayBuffer();
+          await ingestPdfBuffer(file.name, buf);
+        } else {
+          setStatus(`Skipped "${file.name}": Not a PDF file.`, true);
+        }
+      }
+    }
+
+    function renderLibrary() {
+      const lib = $("library");
+      $("mergeAllBtn").disabled = state.docs.length < 2;
+      if (!state.docs.length) {
+        lib.innerHTML = `<div class="muted">No documents loaded.</div>`;
+        return;
+      }
+      lib.innerHTML = "";
+      state.docs.forEach(doc => {
+        const div = document.createElement("div");
+        div.className = `doc-item ${doc.id === state.activeDocId ? "active-doc" : ""}`;
+        div.setAttribute("role", "tab");
+        div.setAttribute("aria-selected", String(doc.id === state.activeDocId));
+        div.innerHTML = `
+          <div class="doc-title" title="${doc.name}">${doc.name}</div>
+          <div class="muted">${doc.pages.length} page(s) · ${(doc.rawBytes.byteLength / 1024).toFixed(0)} KB</div>
+          <div class="doc-actions">
+            <button class="sm" data-act="switch">Open</button>
+            <button class="sm danger-btn" data-act="close">Close</button>
+          </div>
+        `;
+        div.querySelector('[data-act="switch"]').onclick = () => {
+          state.activeDocId = doc.id;
+          state.viewedPageIdx = 0;
+          refreshUI();
+        };
+        div.querySelector('[data-act="close"]').onclick = () => {
+          state.docs = state.docs.filter(d => d.id !== doc.id);
+          if (state.activeDocId === doc.id) {
+            state.activeDocId = state.docs[0]?.id || null;
+            state.viewedPageIdx = 0;
+          }
+          refreshUI();
+          AutoSave.save();
+        };
+        lib.appendChild(div);
+      });
+    }
+
+    async function renderThumbnails() {
+      const doc = getActiveDoc();
+      const grid = $("pagesGrid");
+      $("pageCountTag").textContent = doc ? doc.pages.length : 0;
+      $("downloadBtn").disabled = !doc || doc.pages.length === 0;
+
+      if (!doc || !doc.pages.length) {
+        grid.innerHTML = `<div class="muted" style="grid-column:1/-1;text-align:center;padding:30px">No pages to display.</div>`;
+        $("selectionCount").textContent = "0 selected";
+        return;
+      }
+
+      const selectedCount = doc.pages.filter(p => p.selected).length;
+      $("selectionCount").textContent = `${selectedCount} of ${doc.pages.length} selected`;
+
+      grid.innerHTML = "";
+      let dragSrcIdx = null;
+
+      doc.pages.forEach((p, idx) => {
+        const card = document.createElement("div");
+        card.className = `page-card ${p.selected ? "selected" : ""} ${idx === state.viewedPageIdx ? "viewed" : ""}`;
+        card.draggable = true;
+        card.setAttribute("role", "listitem");
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = p.selected;
+        cb.setAttribute("aria-label", `Select page ${idx + 1}`);
+        cb.onclick = (e) => {
+          e.stopPropagation();
+          p.selected = cb.checked;
+          card.classList.toggle("selected", p.selected);
+          $("selectionCount").textContent = `${doc.pages.filter(x => x.selected).length} of ${doc.pages.length} selected`;
         };
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            renderSparks();
-            updateLibraryUI();
-            updateApiStatusUI();
-            renderDefaultPath();
+        const thumbCanvas = document.createElement("canvas");
+        if (idx < 100) {
+          LocalPdfEngine.renderPageToCanvas(doc.parsedDoc, p.srcIndex, thumbCanvas, 0.22, p.rotation);
+        }
+
+        const indexRow = document.createElement("div");
+        indexRow.className = "index";
+        indexRow.innerHTML = `<span>Page ${idx + 1}</span><span>${p.rotation ? p.rotation + "°" : ""}</span>`;
+
+        const moves = document.createElement("div");
+        moves.className = "moves";
+        const leftBtn = document.createElement("button");
+        leftBtn.className = "sm";
+        leftBtn.textContent = "←";
+        leftBtn.disabled = idx === 0;
+        leftBtn.onclick = (e) => { e.stopPropagation(); movePage(idx, idx - 1); };
+
+        const rightBtn = document.createElement("button");
+        rightBtn.className = "sm";
+        rightBtn.textContent = "→";
+        rightBtn.disabled = idx === doc.pages.length - 1;
+        rightBtn.onclick = (e) => { e.stopPropagation(); movePage(idx, idx + 1); };
+
+        moves.append(leftBtn, rightBtn);
+        card.append(cb, thumbCanvas, indexRow, moves);
+
+        card.onclick = () => {
+          state.viewedPageIdx = idx;
+          renderThumbnails();
+          renderMainPreview();
+        };
+
+        // Drag-and-drop reordering
+        card.ondragstart = (e) => {
+          dragSrcIdx = idx;
+          e.dataTransfer.effectAllowed = "move";
+        };
+        card.ondragover = (e) => {
+          e.preventDefault();
+          card.classList.add("drag-target");
+        };
+        card.ondragleave = () => card.classList.remove("drag-target");
+        card.ondrop = (e) => {
+          e.preventDefault();
+          card.classList.remove("drag-target");
+          if (dragSrcIdx !== null && dragSrcIdx !== idx) {
+            movePage(dragSrcIdx, idx);
+          }
+        };
+
+        grid.appendChild(card);
+      });
+    }
+
+    function movePage(fromIdx, toIdx) {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      pushHistory(doc);
+      const [moved] = doc.pages.splice(fromIdx, 1);
+      doc.pages.splice(toIdx, 0, moved);
+      state.viewedPageIdx = toIdx;
+      refreshUI();
+    }
+
+    async function renderMainPreview() {
+      const doc = getActiveDoc();
+      const pdfCanvas = $("pdfCanvas");
+      const annotCanvas = $("annotCanvas");
+      const empty = $("emptyPreview");
+
+      if (!doc || !doc.pages.length) {
+        pdfCanvas.hidden = true;
+        annotCanvas.hidden = true;
+        empty.hidden = false;
+        $("currentPageTag").textContent = "—";
+        renderAnnotList();
+        return;
+      }
+
+      const pageObj = doc.pages[state.viewedPageIdx];
+      $("currentPageTag").textContent = `${state.viewedPageIdx + 1} / ${doc.pages.length}`;
+      $("zoomLevelLabel").textContent = `${Math.round(state.zoom * 100)}%`;
+
+      pdfCanvas.hidden = false;
+      annotCanvas.hidden = false;
+      empty.hidden = true;
+
+      await LocalPdfEngine.renderPageToCanvas(doc.parsedDoc, pageObj.srcIndex, pdfCanvas, state.zoom, pageObj.rotation);
+      annotCanvas.width = pdfCanvas.width;
+      annotCanvas.height = pdfCanvas.height;
+
+      drawAnnotationsOnCanvas(annotCanvas, pageObj.annotations, state.zoom);
+      renderAnnotList();
+    }
+
+    function drawAnnotationsOnCanvas(canvas, annotations, scale) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const a of annotations) {
+        ctx.save();
+        ctx.globalAlpha = a.opacity ?? 1;
+        ctx.strokeStyle = a.color;
+        ctx.fillStyle = a.color;
+        ctx.lineWidth = (a.size || 3) * scale;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        if (a.type === "highlight") {
+          ctx.globalAlpha = 0.35;
+          ctx.fillRect(a.x * scale, a.y * scale, a.w * scale, a.h * scale);
+        } else if (a.type === "redact") {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = "#000000";
+          ctx.fillRect(a.x * scale, a.y * scale, a.w * scale, a.h * scale);
+        } else if (a.type === "rect") {
+          ctx.strokeRect(a.x * scale, a.y * scale, a.w * scale, a.h * scale);
+        } else if (a.type === "circle") {
+          ctx.beginPath();
+          const rx = Math.abs(a.w * scale) / 2;
+          const ry = Math.abs(a.h * scale) / 2;
+          ctx.ellipse((a.x + a.w / 2) * scale, (a.y + a.h / 2) * scale, rx, ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (a.type === "line") {
+          ctx.beginPath();
+          ctx.moveTo(a.x * scale, a.y * scale);
+          ctx.lineTo((a.x + a.w) * scale, (a.y + a.h) * scale);
+          ctx.stroke();
+        } else if (a.type === "draw" && a.points?.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(a.points[0].x * scale, a.points[0].y * scale);
+          for (let i = 1; i < a.points.length; i++) {
+            ctx.lineTo(a.points[i].x * scale, a.points[i].y * scale);
+          }
+          ctx.stroke();
+        } else if (a.type === "text") {
+          ctx.font = `bold ${Math.max(10, (a.size || 16) * scale)}px system-ui, sans-serif`;
+          ctx.fillText(a.text, a.x * scale, a.y * scale);
+        }
+        ctx.restore();
+      }
+    }
+
+    function renderAnnotList() {
+      const doc = getActiveDoc();
+      const list = $("annotList");
+      if (!doc || !doc.pages[state.viewedPageIdx]) {
+        list.innerHTML = `<div class="muted">No annotations on this page.</div>`;
+        return;
+      }
+      const annots = doc.pages[state.viewedPageIdx].annotations;
+      if (!annots.length) {
+        list.innerHTML = `<div class="muted">No annotations on this page.</div>`;
+        return;
+      }
+      list.innerHTML = "";
+      annots.forEach((a, i) => {
+        const row = document.createElement("div");
+        row.className = "annot-item";
+        row.innerHTML = `<span><strong>${a.type.toUpperCase()}</strong> ${a.text ? `"${a.text}"` : ""}</span>`;
+        const del = document.createElement("button");
+        del.className = "sm danger-btn";
+        del.textContent = "✕";
+        del.onclick = () => {
+          pushHistory(doc);
+          annots.splice(i, 1);
+          renderMainPreview();
+        };
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+
+    function refreshUI() {
+      const doc = getActiveDoc();
+      $("docTitle").textContent = doc ? doc.name : "Private PDF Workspace";
+      $("docMetaSummary").textContent = doc
+        ? `${doc.pages.length} pages · Ready for offline editing and export`
+        : "Select or drop a PDF file to begin editing locally.";
+
+      if (doc) {
+        $("metaTitle").value = doc.meta.Title || "";
+        $("metaAuthor").value = doc.meta.Author || "";
+        $("metaSubject").value = doc.meta.Subject || "";
+        $("metaKeywords").value = doc.meta.Keywords || "";
+      }
+
+      updateUndoRedoButtons();
+      renderLibrary();
+      renderThumbnails();
+      renderMainPreview();
+    }
+
+    // Parse Range Strings like "1, 3-5, 2"
+    function parsePageRange(str, maxPages) {
+      const indices = [];
+      const parts = str.split(",").map(s => s.trim()).filter(Boolean);
+      for (const part of parts) {
+        if (part.includes("-")) {
+          const [a, b] = part.split("-").map(n => parseInt(n, 10));
+          if (!isNaN(a) && !isNaN(b)) {
+            const step = a <= b ? 1 : -1;
+            for (let i = a; step > 0 ? i <= b : i >= b; i += step) {
+              if (i >= 1 && i <= maxPages) indices.push(i - 1);
+            }
+          }
+        } else {
+          const n = parseInt(part, 10);
+          if (!isNaN(n) && n >= 1 && n <= maxPages) indices.push(n - 1);
+        }
+      }
+      return indices;
+    }
+
+    /**
+     * Builds a complete valid PDF file from the active document state, baking rotations,
+     * vector annotations, redactions, metadata, and optional password encryption.
+     */
+    async function exportCurrentDocToPdf({ pageIndices = null, dpi = 150, quality = 0.88, watermark = null, pageNumbers = null, stamp = null } = {}) {
+      const doc = getActiveDoc();
+      if (!doc) return null;
+
+      const indices = pageIndices || doc.pages.map((_, i) => i);
+      if (!indices.length) {
+        setStatus("No pages selected for export.", true);
+        return null;
+      }
+
+      const builder = new PurePDF.PDFBuilder();
+      builder.meta = { ...doc.meta };
+      builder.password = $("pdfPassword").value || "";
+
+      const scale = dpi / 72;
+      const offCanvas = document.createElement("canvas");
+
+      for (let i = 0; i < indices.length; i++) {
+        const pIdx = indices[i];
+        const p = doc.pages[pIdx];
+        setStatus(`Compiling page ${i + 1} of ${indices.length}...`, false, (i + 1) / indices.length);
+
+        const basePage = doc.parsedDoc.pages[p.srcIndex];
+        const totalRot = ((basePage.rotation + p.rotation) % 360 + 360) % 360;
+        const swapped = totalRot === 90 || totalRot === 270;
+        const ptW = swapped ? basePage.height : basePage.width;
+        const ptH = swapped ? basePage.width : basePage.height;
+
+        await LocalPdfEngine.renderPageToCanvas(doc.parsedDoc, p.srcIndex, offCanvas, scale, p.rotation);
+        const ctx = offCanvas.getContext("2d");
+
+        // Bake interactive annotations & redactions onto raster canvas for permanent fidelity
+        if (p.annotations.length > 0) {
+          const overlay = document.createElement("canvas");
+          overlay.width = offCanvas.width;
+          overlay.height = offCanvas.height;
+          drawAnnotationsOnCanvas(overlay, p.annotations, scale);
+          ctx.drawImage(overlay, 0, 0);
+        }
+
+        // Bake Image Stamp if requested
+        if (stamp && stamp.img) {
+          const aspect = stamp.img.height / stamp.img.width;
+          const sw = stamp.width * scale;
+          const sh = sw * aspect;
+          const sx = stamp.x * scale;
+          const sy = offCanvas.height - (stamp.y * scale) - sh;
+          ctx.drawImage(stamp.img, sx, sy, sw, sh);
+        }
+
+        const dataUrl = offCanvas.toDataURL("image/jpeg", quality);
+        const binStr = atob(dataUrl.split(",")[1]);
+        const jpegBytes = new Uint8Array(binStr.length);
+        for (let b = 0; b < binStr.length; b++) jpegBytes[b] = binStr.charCodeAt(b);
+
+        // Build PDF Vector Content Stream overlays (Watermarks & Page Numbers)
+        let ops = "";
+        if (watermark && watermark.text) {
+          const [r, g, b] = PurePDF.hexToRgb(watermark.color);
+          const angle = Math.PI / 4;
+          const cos = Math.cos(angle).toFixed(4);
+          const sin = Math.sin(angle).toFixed(4);
+          const cx = (ptW / 2 - (watermark.text.length * watermark.size * 0.22)).toFixed(2);
+          const cy = (ptH / 2).toFixed(2);
+          ops += `q ${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} rg BT /F1 ${watermark.size} Tf ${cos} ${sin} -${sin} ${cos} ${cx} ${cy} Tm (${PurePDF.escapePdfStr(watermark.text)}) Tj ET Q\n`;
+        }
+
+        if (pageNumbers) {
+          const numStr = String(pageNumbers.start + i);
+          let nx = ptW / 2 - 10;
+          let ny = 24;
+          if (pageNumbers.pos === "bottom-right") nx = ptW - 50;
+          if (pageNumbers.pos === "top-center") ny = ptH - 30;
+          ops += `q 0.1 0.1 0.1 rg BT /F1 11 Tf ${nx.toFixed(2)} ${ny.toFixed(2)} Td (${numStr}) Tj ET Q\n`;
+        }
+
+        builder.addImagePage({
+          width: ptW,
+          height: ptH,
+          jpegBytes,
+          imgWidth: offCanvas.width,
+          imgHeight: offCanvas.height,
+          ops
         });
+      }
 
-        // --- NAVIGATION ---
-        function switchView(viewName) {
-            state.currentView = viewName;
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      const blob = builder.build();
+      setStatus(`Export complete (${(blob.size / 1024).toFixed(1)} KB).`);
+      return blob;
+    }
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-white/10', 'text-amber-400');
-                btn.classList.add('text-muted');
-            });
-            const activeBtn = document.getElementById(`nav-${viewName}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-white/10', 'text-amber-400');
-                activeBtn.classList.remove('text-muted');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    function triggerDownload(blob, filename) {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    // Event Bindings
+    $("pdfPick").onchange = (e) => { handleFiles(e.target.files); e.target.value = ""; };
+    $("demoBtn").onclick = () => ingestPdfBuffer("LocalPDF-Sample.pdf", LocalPdfEngine.createSamplePdfBytes());
+
+    // Drag & Drop anywhere on window
+    document.body.ondragover = (e) => { e.preventDefault(); $("dropZone").classList.add("dragover"); };
+    document.body.ondragleave = (e) => { if (!e.relatedTarget) $("dropZone").classList.remove("dragover"); };
+    document.body.ondrop = (e) => {
+      e.preventDefault();
+      $("dropZone").classList.remove("dragover");
+      if (e.dataTransfer?.files?.length) handleFiles(e.dataTransfer.files);
+    };
+
+    // Navigation Tabs
+    $("nav").onclick = (e) => {
+      const btn = e.target.closest("button[data-tab]");
+      if (!btn) return;
+      document.querySelectorAll("#nav button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".panel").forEach(p => p.hidden = p.dataset.panel !== tab);
+    };
+
+    // Theme & Help
+    $("themeToggle").onclick = () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+    };
+    $("helpBtn").onclick = () => $("helpDialog").showModal();
+    $("closeHelpBtn").onclick = () => $("helpDialog").close();
+
+    // Undo / Redo / Clear
+    $("undoBtn").onclick = undo;
+    $("redoBtn").onclick = redo;
+    $("clearWorkspaceBtn").onclick = async () => {
+      state.docs = [];
+      state.activeDocId = null;
+      state.viewedPageIdx = 0;
+      await AutoSave.clear();
+      refreshUI();
+      setStatus("Workspace cleared.");
+    };
+
+    // Selection Controls
+    $("selAllBtn").onclick = () => { const d = getActiveDoc(); if (d) { d.pages.forEach(p => p.selected = true); renderThumbnails(); } };
+    $("selNoneBtn").onclick = () => { const d = getActiveDoc(); if (d) { d.pages.forEach(p => p.selected = false); renderThumbnails(); } };
+    $("selInvertBtn").onclick = () => { const d = getActiveDoc(); if (d) { d.pages.forEach(p => p.selected = !p.selected); renderThumbnails(); } };
+    $("selectRangeBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (!d) return;
+      const set = new Set(parsePageRange($("rangeInput").value, d.pages.length));
+      d.pages.forEach((p, i) => p.selected = set.has(i));
+      renderThumbnails();
+    };
+
+    // Zoom & Pagination
+    $("zoomInBtn").onclick = () => { state.zoom = Math.min(3.0, +(state.zoom + 0.2).toFixed(2)); renderMainPreview(); };
+    $("zoomOutBtn").onclick = () => { state.zoom = Math.max(0.3, +(state.zoom - 0.2).toFixed(2)); renderMainPreview(); };
+    $("zoomFitBtn").onclick = () => { state.zoom = 1.0; renderMainPreview(); };
+    $("prevPageBtn").onclick = () => { if (state.viewedPageIdx > 0) { state.viewedPageIdx--; refreshUI(); } };
+    $("nextPageBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (d && state.viewedPageIdx < d.pages.length - 1) { state.viewedPageIdx++; refreshUI(); }
+    };
+
+    // Search Text
+    $("searchBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      const term = $("searchInput").value.trim().toLowerCase();
+      if (!doc || !term) { $("searchStats").textContent = ""; return; }
+      const matches = [];
+      for (let i = 0; i < doc.pages.length; i++) {
+        const { textItems } = await doc.parsedDoc.getPageContent(doc.pages[i].srcIndex);
+        if (textItems.join(" ").toLowerCase().includes(term)) matches.push(i);
+      }
+      state.searchMatches = matches;
+      if (matches.length) {
+        state.viewedPageIdx = matches[0];
+        $("searchStats").textContent = `Found on ${matches.length} page(s): ${matches.map(m => m + 1).join(", ")}`;
+        refreshUI();
+      } else {
+        $("searchStats").textContent = "No matches";
+      }
+    };
+
+    // Page Manipulation Actions
+    $("rotateLeftBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (!d) return;
+      pushHistory(d);
+      d.pages.forEach(p => { if (p.selected) p.rotation = (p.rotation + 270) % 360; });
+      refreshUI();
+    };
+    $("rotateRightBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (!d) return;
+      pushHistory(d);
+      d.pages.forEach(p => { if (p.selected) p.rotation = (p.rotation + 90) % 360; });
+      refreshUI();
+    };
+    $("duplicatePagesBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (!d) return;
+      pushHistory(d);
+      const nextPages = [];
+      for (const p of d.pages) {
+        nextPages.push(p);
+        if (p.selected) nextPages.push(JSON.parse(JSON.stringify(p)));
+      }
+      d.pages = nextPages;
+      refreshUI();
+    };
+    $("deletePagesBtn").onclick = () => {
+      const d = getActiveDoc();
+      if (!d) return;
+      const remaining = d.pages.filter(p => !p.selected);
+      if (!remaining.length) { setStatus("Cannot delete all pages from document.", true); return; }
+      pushHistory(d);
+      d.pages = remaining;
+      state.viewedPageIdx = Math.min(state.viewedPageIdx, d.pages.length - 1);
+      refreshUI();
+    };
+
+    // Download & Extract & Split & Merge
+    $("downloadBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf();
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-edited.pdf");
+    };
+
+    $("extractPdfBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const custom = $("extractOrderInput").value.trim();
+      const indices = custom
+        ? parsePageRange(custom, doc.pages.length)
+        : doc.pages.map((p, i) => p.selected ? i : -1).filter(i => i !== -1);
+      const blob = await exportCurrentDocToPdf({ pageIndices: indices });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-extracted.pdf");
+    };
+
+    $("splitZipBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const zipFiles = [];
+      for (let i = 0; i < doc.pages.length; i++) {
+        const blob = await exportCurrentDocToPdf({ pageIndices: [i] });
+        zipFiles.push({ name: `page-${String(i + 1).padStart(3, "0")}.pdf`, data: await blob.arrayBuffer() });
+      }
+      const zipBlob = MiniZip.create(zipFiles);
+      triggerDownload(zipBlob, doc.name.replace(/\.pdf$/i, "") + "-split.zip");
+    };
+
+    $("mergeAllBtn").onclick = async () => {
+      if (state.docs.length < 2) return;
+      const builder = new PurePDF.PDFBuilder();
+      const offCanvas = document.createElement("canvas");
+      const scale = 150 / 72;
+      let count = 0;
+      for (const doc of state.docs) {
+        for (const p of doc.pages) {
+          count++;
+          setStatus(`Merging page ${count}...`);
+          const basePage = doc.parsedDoc.pages[p.srcIndex];
+          const totalRot = ((basePage.rotation + p.rotation) % 360 + 360) % 360;
+          const swapped = totalRot === 90 || totalRot === 270;
+          await LocalPdfEngine.renderPageToCanvas(doc.parsedDoc, p.srcIndex, offCanvas, scale, p.rotation);
+          const bin = atob(offCanvas.toDataURL("image/jpeg", 0.88).split(",")[1]);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          builder.addImagePage({
+            width: swapped ? basePage.height : basePage.width,
+            height: swapped ? basePage.width : basePage.height,
+            jpegBytes: bytes,
+            imgWidth: offCanvas.width,
+            imgHeight: offCanvas.height
+          });
         }
+      }
+      const mergedBlob = builder.build();
+      triggerDownload(mergedBlob, "merged-documents.pdf");
+      setStatus(`Merged ${count} pages across ${state.docs.length} documents.`);
+    };
 
-        // --- DISCOVERY & SPARKS ---
-        function setDomainFilter(domain) {
-            state.domainFilter = domain;
-            document.querySelectorAll('.domain-pill').forEach(pill => {
-                if (pill.textContent === domain) {
-                    pill.className = 'domain-pill active text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all cursor-pointer';
-                } else {
-                    pill.className = 'domain-pill text-xs px-3 py-1 rounded-full bg-white/5 text-muted hover:text-parchment border border-white/5 transition-all cursor-pointer';
-                }
-            });
-            renderSparks();
+    $("applyPageNumsBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf({
+        pageNumbers: { start: parseInt($("pageNumStart").value, 10) || 1, pos: $("pageNumPos").value }
+      });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-numbered.pdf");
+    };
+
+    // Interactive Canvas Drawing Tools
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.activeTool = btn.dataset.tool;
+        $("textToolOptions").hidden = state.activeTool !== "text";
+        setStatus(`Active tool: ${state.activeTool.toUpperCase()}`);
+      };
+    });
+
+    const annotCanvas = $("annotCanvas");
+    function getCanvasPt(e) {
+      const rect = annotCanvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) / state.zoom,
+        y: (e.clientY - rect.top) / state.zoom
+      };
+    }
+
+    annotCanvas.onpointerdown = (e) => {
+      const doc = getActiveDoc();
+      if (!doc || state.activeTool === "none") return;
+      const pageObj = doc.pages[state.viewedPageIdx];
+      const pt = getCanvasPt(e);
+
+      if (state.activeTool === "text") {
+        const txt = $("annotTextContent").value.trim() || "Note";
+        pushHistory(doc);
+        pageObj.annotations.push({
+          type: "text",
+          text: txt,
+          x: pt.x,
+          y: pt.y,
+          color: $("annotColor").value,
+          size: parseInt($("annotSize").value, 10) || 16,
+          opacity: parseFloat($("annotOpacity").value) || 1
+        });
+        renderMainPreview();
+        return;
+      }
+
+      state.isDrawing = true;
+      state.drawStart = pt;
+      state.currentPath = [pt];
+      annotCanvas.setPointerCapture(e.pointerId);
+    };
+
+    annotCanvas.onpointermove = (e) => {
+      if (!state.isDrawing) return;
+      const doc = getActiveDoc();
+      const pageObj = doc.pages[state.viewedPageIdx];
+      const pt = getCanvasPt(e);
+
+      if (state.activeTool === "draw") {
+        state.currentPath.push(pt);
+      }
+
+      const tempAnnot = state.activeTool === "draw"
+        ? { type: "draw", points: state.currentPath, color: $("annotColor").value, size: parseInt($("annotSize").value, 10), opacity: parseFloat($("annotOpacity").value) }
+        : { type: state.activeTool, x: state.drawStart.x, y: state.drawStart.y, w: pt.x - state.drawStart.x, h: pt.y - state.drawStart.y, color: $("annotColor").value, size: parseInt($("annotSize").value, 10), opacity: parseFloat($("annotOpacity").value) };
+
+      drawAnnotationsOnCanvas(annotCanvas, [...pageObj.annotations, tempAnnot], state.zoom);
+    };
+
+    annotCanvas.onpointerup = (e) => {
+      if (!state.isDrawing) return;
+      state.isDrawing = false;
+      const doc = getActiveDoc();
+      const pageObj = doc.pages[state.viewedPageIdx];
+      const pt = getCanvasPt(e);
+
+      pushHistory(doc);
+      if (state.activeTool === "draw") {
+        pageObj.annotations.push({
+          type: "draw",
+          points: state.currentPath,
+          color: $("annotColor").value,
+          size: parseInt($("annotSize").value, 10),
+          opacity: parseFloat($("annotOpacity").value)
+        });
+      } else {
+        pageObj.annotations.push({
+          type: state.activeTool,
+          x: state.drawStart.x,
+          y: state.drawStart.y,
+          w: pt.x - state.drawStart.x,
+          h: pt.y - state.drawStart.y,
+          color: $("annotColor").value,
+          size: parseInt($("annotSize").value, 10),
+          opacity: parseFloat($("annotOpacity").value)
+        });
+      }
+      renderMainPreview();
+    };
+
+    $("clearPageAnnotsBtn").onclick = () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      pushHistory(doc);
+      doc.pages[state.viewedPageIdx].annotations = [];
+      renderMainPreview();
+    };
+
+    $("bakeAnnotsBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf();
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-annotated.pdf");
+    };
+
+    // Watermark & Image Stamp
+    $("applyWatermarkBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf({
+        watermark: {
+          text: $("wmText").value || "CONFIDENTIAL",
+          size: parseInt($("wmSize").value, 10) || 48,
+          color: $("wmColor").value
         }
+      });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-watermarked.pdf");
+    };
 
-        function shuffleSparks() {
-            CURATED_SPARKS.sort(() => Math.random() - 0.5);
-            renderSparks();
+    $("applyStampBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      const file = $("stampFile").files?.[0];
+      if (!doc || !file) { setStatus("Select an image file first.", true); return; }
+      const url = URL.createObjectURL(file);
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      URL.revokeObjectURL(url);
+      const blob = await exportCurrentDocToPdf({
+        stamp: {
+          img,
+          width: parseFloat($("stampWidth").value) || 140,
+          x: parseFloat($("stampX").value) || 50,
+          y: parseFloat($("stampY").value) || 50
         }
+      });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-stamped.pdf");
+    };
 
-        function renderSparks() {
-            const grid = document.getElementById('sparks-grid');
-            const filtered = state.domainFilter === 'All' 
-                ? CURATED_SPARKS 
-                : CURATED_SPARKS.filter(s => s.domain === state.domainFilter);
+    // Optimize & Convert
+    $("compressRasterBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf({
+        dpi: parseInt($("optDpi").value, 10) || 144,
+        quality: parseFloat($("optQuality").value) || 0.72
+      });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-compressed.pdf");
+    };
 
-            grid.innerHTML = filtered.slice(0, 6).map(spark => `
-                <div onclick="openCuratedDossier('${spark.id}')" class="glass-panel rounded-xl p-5 hover:border-amber-500/40 transition-all cursor-pointer group flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-[11px] font-mono text-amber-400/90 mb-2.5">
-                            <span>${spark.domain}</span>
-                            <span class="text-zinc-500">${spark.readTime}</span>
-                        </div>
-                        <h4 class="serif-title text-xl font-semibold text-parchment group-hover:text-amber-300 transition-colors leading-snug mb-2">
-                            ${spark.title}
-                        </h4>
-                        <p class="text-xs text-muted leading-relaxed line-clamp-3">
-                            ${spark.subtitle}
-                        </p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-400 group-hover:text-amber-400">
-                        <span>Open Dossier</span>
-                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
+    $("losslessSaveBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf({ dpi: 200, quality: 0.95 });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-optimized.pdf");
+    };
 
-        function openCuratedDossier(id) {
-            const spark = CURATED_SPARKS.find(s => s.id === id);
-            if (!spark) return;
-            renderDossier(spark);
-            switchView('research');
-        }
+    $("exportImagesZipBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const fmt = $("exportImgFormat").value;
+      const dpi = parseInt($("exportImgDpi").value, 10) || 150;
+      const scale = dpi / 72;
+      const c = document.createElement("canvas");
+      const files = [];
 
-        // --- RESEARCH ENGINE (LIVE API OR SYNTHETIC FALLBACK) ---
-        async function handleSearchSubmit(e) {
-            e.preventDefault();
-            const query = document.getElementById('inquiry-input').value.trim();
-            if (!query) return;
-            await investigateTopic(query);
-        }
+      for (let i = 0; i < doc.pages.length; i++) {
+        const p = doc.pages[i];
+        if (!p.selected) continue;
+        await LocalPdfEngine.renderPageToCanvas(doc.parsedDoc, p.srcIndex, c, scale, p.rotation);
+        const dataUrl = c.toDataURL(`image/${fmt}`, 0.9);
+        const bin = atob(dataUrl.split(",")[1]);
+        const bytes = new Uint8Array(bin.length);
+        for (let b = 0; b < bin.length; b++) bytes[b] = bin.charCodeAt(b);
+        files.push({ name: `page-${String(i + 1).padStart(3, "0")}.${fmt}`, data: bytes });
+      }
+      if (!files.length) { setStatus("Check at least one page to export.", true); return; }
+      triggerDownload(MiniZip.create(files), doc.name.replace(/\.pdf$/i, "") + "-images.zip");
+    };
 
-        async function investigateTopic(query) {
-            switchView('research');
-            const loader = document.getElementById('research-loader');
-            const content = document.getElementById('dossier-content');
-            loader.classList.remove('hidden');
-            content.classList.add('hidden');
+    $("buildImagesPdfBtn").onclick = async () => {
+      const files = $("imagesToPdfInput").files;
+      if (!files?.length) { setStatus("Choose one or more PNG/JPEG images.", true); return; }
+      const builder = new PurePDF.PDFBuilder();
+      const c = document.createElement("canvas");
+      const ctx = c.getContext("2d");
 
-            // Check if matches curated first
-            const exactMatch = CURATED_SPARKS.find(s => s.title.toLowerCase() === query.toLowerCase());
-            if (exactMatch && !state.apiKey) {
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    content.classList.remove('hidden');
-                    renderDossier(exactMatch);
-                }, 450);
-                return;
-            }
+      for (const f of files) {
+        const url = URL.createObjectURL(f);
+        const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+        URL.revokeObjectURL(url);
+        c.width = img.width;
+        c.height = img.height;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0);
+        const bin = atob(c.toDataURL("image/jpeg", 0.9).split(",")[1]);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        builder.addImagePage({ width: 595.28, height: (595.28 * img.height) / img.width, jpegBytes: bytes, imgWidth: img.width, imgHeight: img.height });
+      }
+      triggerDownload(builder.build(), "images-compiled.pdf");
+    };
 
-            if (state.apiKey) {
-                try {
-                    document.getElementById('loader-subtext').textContent = 'Querying Gemini Synthesis Engine...';
-                    const dossier = await fetchLiveGeminiDossier(query, state.depth, state.apiKey);
-                    loader.classList.add('hidden');
-                    content.classList.remove('hidden');
-                    renderDossier(dossier);
-                    return;
-                } catch (err) {
-                    console.error(err);
-                    showToast('API error — falling back to local synthesis');
-                }
-            }
+    // Redaction & Metadata
+    $("burnRedactionsBtn").onclick = async () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      const blob = await exportCurrentDocToPdf({ dpi: 150, quality: 0.9 });
+      triggerDownload(blob, doc.name.replace(/\.pdf$/i, "") + "-redacted.pdf");
+    };
 
-            // Built-in intelligent structural synthesizer when offline / no API key
-            setTimeout(() => {
-                const synthesized = buildFallbackDossier(query, state.depth);
-                loader.classList.add('hidden');
-                content.classList.remove('hidden');
-                renderDossier(synthesized);
-            }, 650);
-        }
+    $("saveMetaBtn").onclick = () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      pushHistory(doc);
+      doc.meta = {
+        Title: $("metaTitle").value,
+        Author: $("metaAuthor").value,
+        Subject: $("metaSubject").value,
+        Keywords: $("metaKeywords").value,
+        Creator: "LocalPDF Studio"
+      };
+      setStatus("Metadata updated in working document.");
+    };
 
-        async function fetchLiveGeminiDossier(topic, depth, apiKey) {
-            const prompt = `You are OBSCURA, an elite intellectual research engine. Generate a deep, rigorous research dossier on: "${topic}" at a "${depth}" intellectual depth.
-Return ONLY valid JSON with this exact schema:
-{
-  "domain": "Academic Domain Name",
-  "title": "Compelling Editorial Title",
-  "readTime": "7 MIN READ",
-  "abstract": "2-sentence executive synthesis.",
-  "pillars": [
-    {"label": "Core Mechanism", "value": "..."},
-    {"label": "Historical Context", "value": "..."},
-    {"label": "Systemic Impact", "value": "..."}
-  ],
-  "body": "HTML string using <h3>, <p>, <ul>, <li>, and <blockquote> tags (3 substantial sections).",
-  "dialectic": "A strong counter-argument, limitation, or competing school of thought.",
-  "vectors": ["Follow-up research question 1", "Follow-up research question 2", "Follow-up research question 3", "Follow-up research question 4"]
-}`;
+    $("stripMetaBtn").onclick = () => {
+      const doc = getActiveDoc();
+      if (!doc) return;
+      pushHistory(doc);
+      doc.meta = { Title: "", Author: "", Subject: "", Keywords: "", Creator: "" };
+      refreshUI();
+      setStatus("All standard metadata stripped.");
+    };
 
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { responseMimeType: "application/json" }
-                })
-            });
+    // Keyboard Shortcuts
+    window.onkeydown = (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
+      else if (e.key === "ArrowLeft") { $("prevPageBtn").click(); }
+      else if (e.key === "ArrowRight") { $("nextPageBtn").click(); }
+      else if (e.key === "+" || e.key === "=") { $("zoomInBtn").click(); }
+      else if (e.key === "-") { $("zoomOutBtn").click(); }
+      else if (e.key === "Escape") {
+        state.activeTool = "none";
+        document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+        document.querySelector('[data-tool="none"]')?.classList.add("active");
+      }
+    };
 
-            if (!res.ok) throw new Error('API request failed');
-            const data = await res.json();
-            const rawText = data.candidates[0].content.parts[0].text;
-            const parsed = JSON.parse(rawText);
-            parsed.id = 'live-' + Date.now();
-            return parsed;
-        }
-
-        function buildFallbackDossier(query, depth) {
-            return {
-                id: 'synth-' + Date.now(),
-                domain: state.domainFilter === 'All' ? 'INTERDISCIPLINARY INQUIRY' : state.domainFilter.toUpperCase(),
-                title: query,
-                readTime: '6 MIN READ',
-                abstract: `An analytical examination of "${query}" structured at the ${depth} level—mapping foundational axioms, institutional tensions, and second-order consequences.`,
-                pillars: [
-                    { label: 'First Principles', value: `Deconstructs ${query} into its irreducible causal mechanisms and structural incentives.` },
-                    { label: 'Historical Lineage', value: 'Traces how competing intellectual traditions have framed and contested this phenomenon.' },
-                    { label: 'Frontier Edge', value: 'Identifies unresolved empirical anomalies and emerging paradigm shifts.' }
-                ],
-                body: `
-                    <h3>1. Conceptual Architecture & First Principles</h3>
-                    <p>To examine <strong>${query}</strong> rigorously requires separating surface-level narratives from underlying structural incentives. Across complex adaptive systems, outcomes rarely emerge from isolated actors; rather, they are shaped by feedback loops, asymmetric information, and path-dependent institutions.</p>
-                    <p>At a ${depth.toLowerCase()} level of analysis, we look closely at how definitions themselves carry normative assumptions that constrain policy and scholarly debate.</p>
-                    <h3>2. Historical Evolution & Institutional Friction</h3>
-                    <p>Every enduring concept undergoes periods of orthodoxy followed by crisis-driven revision. When existing frameworks fail to predict real-world anomalies, practitioners are forced to synthesize tools from adjacent disciplines.</p>
-                    <blockquote>"True intellectual clarity begins when we can articulate the strongest possible version of a thesis alongside the exact conditions under which it breaks down."</blockquote>
-                    <ul>
-                        <li><strong>Structural Continuity:</strong> Core constraints that persist across technological or political eras.</li>
-                        <li><strong>Contingent Variables:</strong> Local cultural, regulatory, or material factors that produce divergent outcomes.</li>
-                    </ul>
-                    <h3>3. Contemporary Relevance</h3>
-                    <p><em>Tip: Add a free Google Gemini API key in Research Engine Settings (bottom-left) to generate bespoke, real-time literature syntheses for any custom query.</em></p>
-                `,
-                dialectic: `Any unified framework explaining "${query}" risks over-fitting historical patterns onto novel conditions; empirical humility demands testing foundational assumptions against edge cases.`,
-                vectors: [
-                    `Historical Origins of ${query}`,
-                    `Quantitative & Empirical Critiques of ${query}`,
-                    `Comparative Case Studies: Global Perspectives`,
-                    `Second-Order Consequences & Future Trajectories`
-                ]
-            };
-        }
-
-        function renderDossier(dossier) {
-            state.currentDossier = dossier;
-            document.getElementById('dossier-domain').textContent = dossier.domain.toUpperCase();
-            document.getElementById('dossier-depth').textContent = `DEPTH: ${state.depth.toUpperCase()}`;
-            document.getElementById('dossier-readtime').textContent = dossier.readTime || '6 MIN READ';
-            document.getElementById('dossier-title').textContent = dossier.title;
-            document.getElementById('dossier-abstract').textContent = dossier.abstract;
-
-            // Pillars
-            const pillarsEl = document.getElementById('dossier-pillars');
-            pillarsEl.innerHTML = (dossier.pillars || []).map(p => `
-                <div class="bg-charcoal border border-white/10 rounded-xl p-4">
-                    <div class="text-[11px] font-mono uppercase tracking-wider text-amber-400 mb-1.5">${p.label}</div>
-                    <p class="text-xs text-zinc-300 leading-relaxed">${p.value}</p>
-                </div>
-            `).join('');
-
-            // Body
-            document.getElementById('dossier-body').innerHTML = dossier.body;
-
-            // Dialectic
-            const diaBox = document.getElementById('dossier-dialectic');
-            if (dossier.dialectic) {
-                diaBox.classList.remove('hidden');
-                document.getElementById('dialectic-text').textContent = dossier.dialectic;
-            } else {
-                diaBox.classList.add('hidden');
-            }
-
-            // Vectors
-            const vecBox = document.getElementById('dossier-vectors');
-            const vecList = document.getElementById('vectors-list');
-            if (dossier.vectors && dossier.vectors.length) {
-                vecBox.classList.remove('hidden');
-                vecList.innerHTML = dossier.vectors.map(v => `
-                    <button onclick="investigateTopic('${v.replace(/'/g, "\'")}')" class="text-left p-3.5 rounded-xl bg-white/5 hover:bg-amber-500/10 border border-white/10 hover:border-amber-500/30 transition-all flex items-center justify-between gap-3 group cursor-pointer">
-                        <span class="text-xs text-parchment group-hover:text-amber-300 font-medium">${v}</span>
-                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-500 group-hover:text-amber-400 shrink-0"></i>
-                    </button>
-                `).join('');
-            } else {
-                vecBox.classList.add('hidden');
-            }
-
-            lucide.createIcons();
-        }
-
-        // --- LEARNING PATHS ---
-        function renderDefaultPath() {
-            renderPathSyllabus('Macro-Financial Architecture & Sovereign Policy');
-        }
-
-        function handlePathSubmit(e) {
-            e.preventDefault();
-            const topic = document.getElementById('path-topic-input').value.trim();
-            if (!topic) return;
-            renderPathSyllabus(topic);
-        }
-
-        function generatePathFromCurrent() {
-            if (!state.currentDossier) return;
-            document.getElementById('path-topic-input').value = state.currentDossier.title;
-            renderPathSyllabus(state.currentDossier.title);
-            switchView('paths');
-        }
-
-        function renderPathSyllabus(topic) {
-            const stages = [
-                {
-                    num: '01',
-                    phase: 'Foundational Axioms',
-                    title: `Core Vocabulary & First Principles of ${topic}`,
-                    desc: 'Establish precise definitions, historical catalysts, and the baseline mental models required to navigate primary literature.',
-                    prompt: `Foundational axioms and core definitions of ${topic}`
-                },
-                {
-                    num: '02',
-                    phase: 'Institutional Mechanics',
-                    title: `Structural Dynamics & Operational Mechanisms`,
-                    desc: 'Examine how incentives, governance frameworks, and feedback loops operate in real-world implementations.',
-                    prompt: `Institutional mechanics and structural dynamics of ${topic}`
-                },
-                {
-                    num: '03',
-                    phase: 'Dialectical Debates',
-                    title: `Competing Schools of Thought & Empirical Critiques`,
-                    desc: 'Contrast orthodox consensus against heterodox challenges, edge-case failures, and methodological limitations.',
-                    prompt: `Major theoretical debates and critiques surrounding ${topic}`
-                },
-                {
-                    num: '04',
-                    phase: 'Frontier Synthesis',
-                    title: `Contemporary Paradigms & Future Trajectories`,
-                    desc: 'Synthesize cross-disciplinary insights to evaluate emerging developments and open research questions.',
-                    prompt: `Frontier research and future trajectories in ${topic}`
-                }
-            ];
-
-            const container = document.getElementById('active-path-container');
-            container.innerHTML = `
-                <div class="glass-panel rounded-2xl p-6 border border-amber-500/20">
-                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-                        <div>
-                            <span class="text-[11px] font-mono text-amber-400 uppercase">Active Syllabus</span>
-                            <h3 class="serif-title text-2xl font-bold text-parchment">${topic}</h3>
-                        </div>
-                        <span class="text-xs font-mono text-muted">4 Modules</span>
-                    </div>
-                    <div class="space-y-4">
-                        ${stages.map(st => `
-                            <div class="bg-obsidian/90 border border-white/10 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-amber-500/30 transition-all">
-                                <div class="flex items-start gap-4">
-                                    <span class="font-mono text-lg font-bold text-amber-400/80 pt-0.5">${st.num}</span>
-                                    <div>
-                                        <div class="text-[11px] font-mono uppercase text-zinc-500 mb-1">${st.phase}</div>
-                                        <h4 class="text-base font-semibold text-parchment mb-1">${st.title}</h4>
-                                        <p class="text-xs text-muted leading-relaxed">${st.desc}</p>
-                                    </div>
-                                </div>
-                                <button onclick="investigateTopic('${st.prompt.replace(/'/g, "\'")}')" class="shrink-0 text-xs font-mono bg-white/5 hover:bg-amber-500 hover:text-obsidian text-amber-300 border border-amber-500/30 px-3.5 py-2 rounded-lg transition-all cursor-pointer">
-                                    Launch Module →
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- ARCHIVE & PERSONAL MEMORY ---
-        function saveCurrentToLibrary() {
-            if (!state.currentDossier) return;
-            const exists = state.library.some(item => item.title === state.currentDossier.title);
-            if (exists) {
-                showToast('Dossier already archived');
-                return;
-            }
-            state.library.unshift({
-                ...state.currentDossier,
-                savedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            });
-            localStorage.setItem('obscura_library', JSON.stringify(state.library));
-            updateLibraryUI();
-            showToast('Dossier archived to Memory');
-        }
-
-        function removeFromLibrary(index) {
-            state.library.splice(index, 1);
-            localStorage.setItem('obscura_library', JSON.stringify(state.library));
-            updateLibraryUI();
-            showToast('Removed from Archive');
-        }
-
-        function clearLibrary() {
-            state.library = [];
-            localStorage.setItem('obscura_library', '[]');
-            updateLibraryUI();
-            showToast('Archive cleared');
-        }
-
-        function exportMemoryJSON() {
-            const blob = new Blob([JSON.stringify(state.library, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `obscura-archive-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function updateLibraryUI() {
-            document.getElementById('library-count').textContent = state.library.length;
-            const grid = document.getElementById('library-grid');
-            if (state.library.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center glass-panel rounded-2xl">
-                        <i data-lucide="archive" class="w-8 h-8 text-zinc-600 mx-auto mb-3"></i>
-                        <p class="serif-title text-xl text-parchment mb-1">Your archive is currently empty</p>
-                        <p class="text-xs text-muted">Explore dossiers in Discovery and click "Archive Dossier" to build your personal knowledge repository.</p>
-                    </div>
-                `;
-                lucide.createIcons();
-                return;
-            }
-
-            grid.innerHTML = state.library.map((item, idx) => `
-                <div class="glass-panel rounded-xl p-5 flex flex-col justify-between border border-white/10">
-                    <div>
-                        <div class="flex items-center justify-between text-[11px] font-mono text-amber-400 mb-2">
-                            <span>${item.domain}</span>
-                            <span class="text-zinc-500">Archived ${item.savedAt}</span>
-                        </div>
-                        <h4 class="serif-title text-xl font-bold text-parchment mb-2">${item.title}</h4>
-                        <p class="text-xs text-muted line-clamp-2 mb-4">${item.abstract}</p>
-                    </div>
-                    <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <button onclick='openSavedDossier(${idx})' class="text-xs font-mono text-amber-400 hover:text-amber-300 cursor-pointer">
-                            Reopen Dossier →
-                        </button>
-                        <button onclick="removeFromLibrary(${idx})" class="text-xs text-zinc-500 hover:text-red-400 cursor-pointer">
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function openSavedDossier(idx) {
-            const item = state.library[idx];
-            if (!item) return;
-            renderDossier(item);
-            switchView('research');
-        }
-
-        // --- SETTINGS & UTILITIES ---
-        function updateDepth(val) {
-            state.depth = val;
-            document.getElementById('depth-badge').textContent = val;
-            showToast(`Inquiry depth set to ${val}`);
-        }
-
-        function openSettings() {
-            document.getElementById('gemini-api-key').value = state.apiKey;
-            document.getElementById('settings-modal').classList.remove('hidden');
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('gemini-api-key').value.trim();
-            state.apiKey = key;
-            localStorage.setItem('obscura_gemini_key', key);
-            updateApiStatusUI();
-            closeSettings();
-            showToast(key ? 'Live Gemini Engine connected' : 'Using built-in synthesis engine');
-        }
-
-        function clearApiKey() {
-            document.getElementById('gemini-api-key').value = '';
-            saveApiKey();
-        }
-
-        function updateApiStatusUI() {
-            const dot = document.getElementById('api-status-dot');
-            const text = document.getElementById('api-status-text');
-            if (state.apiKey) {
-                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
-                text.textContent = 'Live Gemini API';
-            } else {
-                dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-                text.textContent = 'Curated + Local Engine';
-            }
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2600);
-        }
-    </script>
+    // Boot
+    AutoSave.load();
+  })();
+  </script>
 </body>
 </html>
